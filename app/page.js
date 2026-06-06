@@ -187,6 +187,121 @@ function HabitTracker() {
   );
 }
 
+function WeekAgenda() {
+  const [events, setEvents] = useState([]);
+  const [addingToDay, setAddingToDay] = useState(null); // "2026-06-07"
+  const [draft, setDraft] = useState({ title: "", time: "" });
+  const [saving, setSaving] = useState(false);
+
+  // 7-day window starting today
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return d.toISOString().slice(0, 10);
+  });
+  const todayStr = days[0];
+
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("*")
+      .gte("event_date", days[0])
+      .lte("event_date", days[6])
+      .order("event_date", { ascending: true })
+      .order("event_time", { ascending: true, nullsFirst: true })
+      .then(({ data }) => { if (data) setEvents(data); });
+  }, []);
+
+  async function saveEvent() {
+    const title = draft.title.trim();
+    if (!title || !addingToDay || saving) return;
+    setSaving(true);
+    const { data, error } = await supabase
+      .from("events")
+      .insert({ title, event_date: addingToDay, event_time: draft.time || null })
+      .select()
+      .single();
+    if (!error && data) setEvents((e) => [...e, data]);
+    setDraft({ title: "", time: "" });
+    setAddingToDay(null);
+    setSaving(false);
+  }
+
+  async function deleteEvent(id) {
+    setEvents((e) => e.filter((x) => x.id !== id));
+    await supabase.from("events").delete().eq("id", id);
+  }
+
+  function eventsForDay(d) {
+    return events.filter((e) => e.event_date === d);
+  }
+
+  return (
+    <div className="week-agenda panel">
+      <div className="week-header">
+        <span className="eyebrow">This week</span>
+      </div>
+      <div className="week-days">
+        {days.map((d) => {
+          const isToday = d === todayStr;
+          const dayEvents = eventsForDay(d);
+          const isAdding = addingToDay === d;
+          const label = new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short" });
+          const num = new Date(d + "T12:00:00").getDate();
+          return (
+            <div key={d} className={`week-day${isToday ? " today" : ""}${isAdding ? " is-adding" : ""}`}>
+              <div className="week-day-head">
+                <span className="week-day-name">{isToday ? "Today" : label}</span>
+                <span className="week-day-num">{num}</span>
+              </div>
+              <div className="week-day-events">
+                {dayEvents.map((ev) => (
+                  <div key={ev.id} className="week-event" title={ev.title}>
+                    {ev.event_time && (
+                      <span className="week-event-time">
+                        {ev.event_time.slice(0, 5)}
+                      </span>
+                    )}
+                    <span className="week-event-title">{ev.title}</span>
+                    <button className="week-event-del" onClick={() => deleteEvent(ev.id)}>×</button>
+                  </div>
+                ))}
+                {isAdding ? (
+                  <div className="week-add-form">
+                    <input
+                      autoFocus
+                      placeholder="What's happening?"
+                      value={draft.title}
+                      onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEvent();
+                        if (e.key === "Escape") { setAddingToDay(null); setDraft({ title: "", time: "" }); }
+                      }}
+                      className="week-add-title"
+                    />
+                    <input
+                      type="time"
+                      value={draft.time}
+                      onChange={(e) => setDraft((d) => ({ ...d, time: e.target.value }))}
+                      className="week-add-time"
+                    />
+                    <div className="week-add-actions">
+                      <button className="week-add-save" onClick={saveEvent} disabled={saving}>Save</button>
+                      <button className="week-add-cancel" onClick={() => { setAddingToDay(null); setDraft({ title: "", time: "" }); }}>×</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="week-add-btn" onClick={() => setAddingToDay(d)}>+</button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function CountdownPanel() {
   return (
     <div className="panel countdown-panel">
@@ -467,6 +582,8 @@ export default function Home() {
           <span className="timestap">{now.time}</span>
         </div>
       </header>
+
+      <WeekAgenda />
 
       <div className="dashboard-grid">
         <aside className="panel photos-aside">

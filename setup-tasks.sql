@@ -11,7 +11,7 @@ delete from tasks;
 insert into tasks (text, status, priority, completed_at) values
   ('Apply for Fiktionsbescheinigung at Frankfurt Ausländerbehörde (Rödelbergweg) — on current Bad Vilbel address, before visa expires 9 Oct 2026. Bring: passport, visa, enrollment proof, biometric photo, fee, insurance, housing search evidence.', 'active', 'urgent', null),
   ('Find accommodation in Frankfurt city (Stadtgebiet, max ~€400 warm, from 1 July). Kleinanzeigen WG lead deleted 5 June — keep searching.', 'active', 'urgent', null),
-  ('Pay Goethe semester fee €408.28 by 31 July 2026 (Rückmeldung WiSe 2026/27). IBAN DE18 5005 0000 0001 006535, BIC HELADEF1, ref = Matrikelnummer.', 'active', 'urgent', null),
+  ('Pay Goethe semester fee €408.28 by 31 July 2026 (Rückmeldung WiSe 2026/27). IBAN DE18 5005 0000 0001 006535, BIC HELADEF1, ref = Matrikelnummer. Late fee €30 after 31 Jul; auto de-registration if missed.', 'active', 'urgent', null),
   ('After signing Frankfurt lease → Anmeldung at Frankfurt Bürgeramt within 14 days.', 'active', 'urgent', null),
   ('Apply for 3-year residence permit at Frankfurt Ausländerbehörde (needs Anmeldung + enrollment + financial means + insurance).', 'active', 'urgent', null),
   ('Reply to Katharina Forster — Green Tea with P: German or English? forster@nachhaltigkeit.uni-frankfurt.de', 'active', 'urgent', null),

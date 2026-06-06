@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS } from "../lib/content";
-import {
-  dueBadgeMeta,
-  sortByDue,
-  linkifyNotes,
-  isFocusTask,
-  CATEGORY_LABELS,
-} from "../lib/task-utils.jsx";
+import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask } from "../lib/task-utils.jsx";
 
 const LEVELS = [
   { key: "urgent", label: "Urgent", blurb: "do now" },
@@ -20,40 +14,21 @@ const LEVELS = [
 function DueBadge({ dueDate }) {
   const meta = dueBadgeMeta(dueDate);
   if (!meta) return null;
-  return (
-    <span className={`due-badge ${meta.tone}`} title={meta.diff < 0 ? "Overdue" : `${meta.diff} days left`}>
-      {meta.label}
-    </span>
-  );
+  return <span className={`due-badge ${meta.tone}`}>{meta.label}</span>;
 }
 
-function TaskRow({ task, onToggle, onPriority, onDelete, showStep }) {
-  const [open, setOpen] = useState(false);
-  const hasNotes = Boolean(task.notes);
+function TaskRow({ task, onToggle, onPriority, onDelete }) {
   const isDone = task.status === "done";
-  const shortNote = hasNotes && task.notes.length <= 55;
-  const showNotes = hasNotes && (shortNote || open || isDone);
+  const display = task.notes && !task.text.includes("@") ? `${task.text} ${task.notes}` : task.text;
 
   return (
     <div className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}`}>
       <div className={`checkbox${isDone ? " checked" : ""}`} onClick={() => onToggle(task)} />
       <div className="task-body">
         <div className="task-top">
-          {showStep && task.step_order && (
-            <span className="step-badge">Step {task.step_order}</span>
-          )}
-          {task.category && !isDone && (
-            <span className={`cat-chip ${task.category}`}>{CATEGORY_LABELS[task.category] || task.category}</span>
-          )}
-          <span className={`task-title${isDone ? " done" : ""}`}>{task.text}</span>
+          <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(display)}</span>
           {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
         </div>
-        {hasNotes && !shortNote && !isDone && (
-          <button type="button" className="notes-toggle" onClick={() => setOpen(!open)}>
-            {open ? "Hide details" : "Show details"}
-          </button>
-        )}
-        {showNotes && <p className="task-notes">{linkifyNotes(task.notes)}</p>}
       </div>
       {!isDone && (
         <div className="task-actions">
@@ -203,19 +178,18 @@ export default function Home() {
             <h2 className="panel-title">To-do</h2>
             <span className="count">{active.length} open</span>
           </div>
-          <p className="panel-lead">Scan the focus strip first — then work through the rest.</p>
+          <p className="panel-lead">Each task moves you closer to what you see below.</p>
 
           {focusTasks.length > 0 && (
             <div className="focus-strip">
               <div className="focus-head">
-                <span className="focus-label">Focus · next 14 days</span>
-                <span className="focus-count">{focusTasks.length}</span>
+                <span className="focus-label">Coming up · next 14 days</span>
               </div>
               <div className="focus-cards">
                 {focusTasks.map((task) => (
                   <div key={task.id} className={`focus-card ${task.priority}`}>
                     <DueBadge dueDate={task.due_date} />
-                    <span className="focus-title">{task.text}</span>
+                    <span className="focus-title">{task.text.split(".")[0]}</span>
                   </div>
                 ))}
               </div>
@@ -255,10 +229,6 @@ export default function Home() {
                   .filter((t) => (t.priority || "todo") === level.key)
                   .sort(sortByDue);
                 if (group.length === 0) return null;
-
-                const visaChain = group.filter((t) => t.category === "visa" && t.step_order);
-                const rest = group.filter((t) => !(t.category === "visa" && t.step_order));
-
                 return (
                   <div className="prio-group" key={level.key}>
                     <div className={`group-head ${level.key}`}>
@@ -267,24 +237,7 @@ export default function Home() {
                       <span className="group-blurb">{level.blurb}</span>
                       <span className="group-count">{group.length}</span>
                     </div>
-
-                    {visaChain.length > 0 && (
-                      <div className="visa-chain">
-                        <div className="chain-label">Legal path</div>
-                        {visaChain.map((task) => (
-                          <TaskRow
-                            key={task.id}
-                            task={task}
-                            showStep
-                            onToggle={toggleTask}
-                            onPriority={changePriority}
-                            onDelete={deleteTask}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {rest.map((task) => (
+                    {group.map((task) => (
                       <TaskRow
                         key={task.id}
                         task={task}

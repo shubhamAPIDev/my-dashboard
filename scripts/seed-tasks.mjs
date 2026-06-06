@@ -13,10 +13,10 @@ const supabase = createClient(url, key);
 
 const rows = TASKS.map((t) => ({
   text: t.text,
-  notes: t.notes || null,
+  notes: null,
   due_date: t.due_date || null,
-  category: t.category || null,
-  step_order: t.step_order || null,
+  category: null,
+  step_order: null,
   status: t.status,
   priority: t.priority,
   completed_at: t.status === "done" ? new Date().toISOString() : null,

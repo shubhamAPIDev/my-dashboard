@@ -339,25 +339,27 @@ body {
 .task-top {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.task-title {
+.task-text {
   flex: 1;
   min-width: 0;
   font-size: 16px;
-  font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.55;
   color: var(--ink);
 }
 
-.task-title.done {
+.task-text.done {
   color: var(--ink-soft);
   text-decoration: line-through;
   text-decoration-color: var(--brand-light);
-  font-weight: 400;
 }
+
+.task.urgent { border-left: 3px solid var(--prio-urgent); padding-left: 10px; }
+.task.important { border-left: 3px solid var(--prio-important); padding-left: 10px; }
+.task.todo { border-left: 3px solid var(--prio-todo); padding-left: 10px; }
 
 .task-notes {
   font-size: 13px;
@@ -679,13 +681,6 @@ body {
 }
 
 .group-count { margin-left: auto; color: var(--ink-soft); }
-
-.task.urgent { border-left: 3px solid transparent; }
-.task.important { border-left: 3px solid transparent; }
-.task.todo { border-left: 3px solid transparent; }
-
-.visa-chain .task.urgent { border-left: 3px solid var(--prio-urgent); margin-left: 4px; }
-.visa-chain .task { background: rgba(255, 241, 232, 0.35); margin-bottom: 2px; }
 
 .completed-head {
   font-family: "Spline Sans Mono", monospace;

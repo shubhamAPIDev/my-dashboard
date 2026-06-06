@@ -99,149 +99,146 @@ export default function Home() {
   return (
     <div className="wrap">
       <header className="masthead">
-        <span className="eyebrow">Personal Dashboard</span>
-        <h1 className="title">
-          Hello, <em>{PROFILE.name}</em>
-        </h1>
-        <p className="subtitle">{PROFILE.tagline}</p>
+        <div className="masthead-left">
+          <span className="eyebrow">Personal Dashboard</span>
+          <h1 className="title">
+            Hello, <em>{PROFILE.name}</em>
+          </h1>
+          <p className="subtitle">{PROFILE.tagline}</p>
+        </div>
         <div className="datetime">
           <span className="datestamp">{now.date}</span>
           <span className="timestap">{now.time}</span>
         </div>
       </header>
 
-      {/* ---------- QUOTES ---------- */}
-      <section className="quotes-section">
-        <div className="section-head">
-          <span className="section-num">&mdash;</span>
-          <h2 className="section-title">Words to live by</h2>
-          <span className="section-rule" />
-        </div>
-        <div className="quotes-grid">
-          {QUOTES.map((q, i) => (
-            <blockquote className="quote-card" key={i}>
-              <p className="quote-text">&ldquo;{q.text}&rdquo;</p>
-              <cite className="quote-author">{q.author}</cite>
-            </blockquote>
-          ))}
-        </div>
-      </section>
+      <div className="main-split">
+        {/* ---------- TO-DO (primary) ---------- */}
+        <section className="panel tasks-panel">
+          <div className="panel-head">
+            <h2 className="panel-title">To-do</h2>
+            <span className="count">{active.length} open</span>
+          </div>
 
-      {/* ---------- TO-DO ---------- */}
-      <section>
-        <div className="section-head">
-          <span className="section-num">01</span>
-          <h2 className="section-title">To-do</h2>
-          <span className="section-rule" />
-          <span className="count">{active.length} open</span>
-        </div>
+          <div className="composer">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addTask()}
+              placeholder="What needs doing?"
+            />
+            <button onClick={addTask}>Add</button>
+          </div>
 
-        <div className="composer">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addTask()}
-            placeholder="What needs doing?"
-          />
-          <button onClick={addTask}>Add</button>
-        </div>
+          <div className="prio-picker">
+            {LEVELS.map((l) => (
+              <button
+                key={l.key}
+                className={`prio-chip ${l.key} ${priority === l.key ? "on" : ""}`}
+                onClick={() => setPriority(l.key)}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="prio-picker">
-          {LEVELS.map((l) => (
-            <button
-              key={l.key}
-              className={`prio-chip ${l.key} ${priority === l.key ? "on" : ""}`}
-              onClick={() => setPriority(l.key)}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
+          <div className="task-list">
+            {loading ? (
+              <p className="loading">Loading your tasks…</p>
+            ) : active.length === 0 ? (
+              <p className="empty">Nothing open. Enjoy the quiet, or add something.</p>
+            ) : (
+              LEVELS.map((level) => {
+                const group = active.filter((t) => (t.priority || "todo") === level.key);
+                if (group.length === 0) return null;
+                return (
+                  <div className="prio-group" key={level.key}>
+                    <div className={`group-head ${level.key}`}>
+                      <span className="dot" />
+                      {level.label}
+                      <span className="group-blurb">{level.blurb}</span>
+                      <span className="group-count">{group.length}</span>
+                    </div>
+                    {group.map((task) => (
+                      <div className={`task ${level.key}`} key={task.id}>
+                        <div className="checkbox" onClick={() => toggleTask(task)} />
+                        <span className="task-text">{task.text}</span>
+                        <button
+                          className="flag"
+                          title="Change priority"
+                          onClick={() => changePriority(task, cyclePriority(task.priority || "todo"))}
+                        >
+                          &#8645;
+                        </button>
+                        <button className="del" onClick={() => deleteTask(task)}>
+                          &#10005;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })
+            )}
 
-        {loading ? (
-          <p className="loading">Loading your tasks…</p>
-        ) : active.length === 0 ? (
-          <p className="empty">Nothing open. Enjoy the quiet, or add something.</p>
-        ) : (
-          LEVELS.map((level) => {
-            const group = active.filter((t) => (t.priority || "todo") === level.key);
-            if (group.length === 0) return null;
-            return (
-              <div className="prio-group" key={level.key}>
-                <div className={`group-head ${level.key}`}>
-                  <span className="dot" />
-                  {level.label}
-                  <span className="group-blurb">{level.blurb}</span>
-                  <span className="group-count">{group.length}</span>
-                </div>
-                {group.map((task) => (
-                  <div className={`task ${level.key}`} key={task.id}>
-                    <div className="checkbox" onClick={() => toggleTask(task)} />
-                    <span className="task-text">{task.text}</span>
-                    <button
-                      className="flag"
-                      title="Change priority"
-                      onClick={() => changePriority(task, cyclePriority(task.priority || "todo"))}
-                    >
-                      &#8645;
-                    </button>
+            {done.length > 0 && (
+              <>
+                <div className="completed-head">Completed &middot; {done.length}</div>
+                {done.map((task) => (
+                  <div className="task" key={task.id}>
+                    <div className="checkbox checked" onClick={() => toggleTask(task)} />
+                    <span className="task-text done">{task.text}</span>
+                    <span className="task-meta">{fmt(task.completed_at)}</span>
                     <button className="del" onClick={() => deleteTask(task)}>
                       &#10005;
                     </button>
                   </div>
                 ))}
-              </div>
-            );
-          })
-        )}
+              </>
+            )}
+          </div>
+        </section>
 
-        {done.length > 0 && (
-          <>
-            <div className="completed-head">Completed &middot; {done.length}</div>
-            {done.map((task) => (
-              <div className="task" key={task.id}>
-                <div className="checkbox checked" onClick={() => toggleTask(task)} />
-                <span className="task-text done">{task.text}</span>
-                <span className="task-meta">{fmt(task.completed_at)}</span>
-                <button className="del" onClick={() => deleteTask(task)}>
-                  &#10005;
-                </button>
+        {/* ---------- QUOTES (sidebar) ---------- */}
+        <aside className="panel quotes-aside">
+          <h2 className="panel-title">Words to live by</h2>
+          <div className="quotes-stack">
+            {QUOTES.map((q, i) => (
+              <blockquote className="quote-card" key={i}>
+                <p className="quote-text">&ldquo;{q.text}&rdquo;</p>
+                <cite className="quote-author">{q.author}</cite>
+              </blockquote>
+            ))}
+          </div>
+        </aside>
+      </div>
+
+      {/* ---------- VISION + PHOTOS ---------- */}
+      <div className="media-row">
+        <section className="panel media-panel">
+          <div className="panel-head">
+            <h2 className="panel-title">Vision board</h2>
+          </div>
+          <div className="vision-grid">
+            {VISION.map((v, i) => (
+              <div className="vision-card" key={i}>
+                <img src={v.image} alt={v.label} />
+                <div className="label">{v.label}</div>
               </div>
             ))}
-          </>
-        )}
-      </section>
+          </div>
+        </section>
 
-      {/* ---------- VISION BOARD ---------- */}
-      <section>
-        <div className="section-head">
-          <span className="section-num">02</span>
-          <h2 className="section-title">Vision board</h2>
-          <span className="section-rule" />
-        </div>
-        <div className="vision-grid">
-          {VISION.map((v, i) => (
-            <div className="vision-card" key={i}>
-              <img src={v.image} alt={v.label} />
-              <div className="label">{v.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- PHOTOS ---------- */}
-      <section>
-        <div className="section-head">
-          <span className="section-num">03</span>
-          <h2 className="section-title">Photos</h2>
-          <span className="section-rule" />
-        </div>
-        <div className="photo-grid">
-          {PHOTOS.map((p, i) => (
-            <img src={p} alt={"photo " + (i + 1)} key={i} />
-          ))}
-        </div>
-      </section>
+        <section className="panel media-panel photos-panel">
+          <div className="panel-head">
+            <h2 className="panel-title">Photos</h2>
+          </div>
+          <div className="photo-grid">
+            {PHOTOS.map((p, i) => (
+              <img src={p} alt={"photo " + (i + 1)} key={i} />
+            ))}
+          </div>
+        </section>
+      </div>
 
       <footer>Built for daily use &middot; edits sync across all your devices</footer>
     </div>

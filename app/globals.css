@@ -78,7 +78,20 @@ body {
   font-size: 12px;
   color: var(--ink-soft);
   letter-spacing: 0.05em;
+}
+.datetime {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 16px;
   margin-top: 10px;
+}
+.timestap {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- sections ---------- */

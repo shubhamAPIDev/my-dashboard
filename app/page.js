@@ -15,18 +15,29 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState("urgent");
   const [loading, setLoading] = useState(true);
-  const [today, setToday] = useState("");
+  const [now, setNow] = useState({ date: "", time: "" });
 
   useEffect(() => {
-    setToday(
-      new Date().toLocaleDateString("en-GB", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    );
+    function tick() {
+      const current = new Date();
+      setNow({
+        date: current.toLocaleDateString("en-GB", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        time: current.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
+      });
+    }
+    tick();
+    const id = setInterval(tick, 1000);
     loadTasks();
+    return () => clearInterval(id);
   }, []);
 
   async function loadTasks() {
@@ -93,7 +104,10 @@ export default function Home() {
           Hello, <em>{PROFILE.name}</em>
         </h1>
         <p className="subtitle">{PROFILE.tagline}</p>
-        <span className="datestamp">{today}</span>
+        <div className="datetime">
+          <span className="datestamp">{now.date}</span>
+          <span className="timestap">{now.time}</span>
+        </div>
       </header>
 
       {/* ---------- QUOTES ---------- */}

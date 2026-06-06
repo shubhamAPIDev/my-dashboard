@@ -22,7 +22,7 @@ function fmt(d) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
+function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onDragStart, onDragEnd, isDragging }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
   const isDone = task.status === "done";
@@ -54,7 +54,17 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
   }
 
   return (
-    <div className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}`}>
+    <div
+      className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}`}
+      draggable={!isDone && !editing}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("taskId", task.id);
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart(task.id);
+      }}
+      onDragEnd={onDragEnd}
+    >
+      <div className="drag-handle" title="Drag to change priority">⠿</div>
       <div className={`checkbox${isDone ? " checked" : ""}`} onClick={() => !editing && onToggle(task)} />
       <div className="task-body">
         {editing ? (
@@ -67,12 +77,8 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
               rows={3}
             />
             <div className="edit-actions">
-              <button type="button" className="edit-save" onClick={saveEdit}>
-                Save
-              </button>
-              <button type="button" className="edit-cancel" onClick={cancelEdit}>
-                Cancel
-              </button>
+              <button type="button" className="edit-save" onClick={saveEdit}>Save</button>
+              <button type="button" className="edit-cancel" onClick={cancelEdit}>Cancel</button>
             </div>
           </div>
         ) : (
@@ -100,12 +106,8 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
       </div>
       {!editing && (
         <div className="task-actions">
-          <button className="edit" title="Edit task" onClick={startEdit}>
-            &#9998;
-          </button>
-          <button className="del" title="Delete" onClick={() => onDelete(task)}>
-            &#10005;
-          </button>
+          <button className="edit" title="Edit task" onClick={startEdit}>&#9998;</button>
+          <button className="del" title="Delete" onClick={() => onDelete(task)}>&#10005;</button>
         </div>
       )}
       {isDone && !editing && <span className="task-meta">{fmt(task.completed_at)}</span>}
@@ -121,6 +123,8 @@ export default function Home() {
   const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragOverLevel, setDragOverLevel] = useState(null);
 
   async function loadTasks() {
     const { data, error } = await supabase
@@ -312,14 +316,27 @@ export default function Home() {
                 const group = active
                   .filter((t) => (t.priority || "todo") === level.key)
                   .sort(sortByDue);
-                if (group.length === 0) return null;
+                const isOver = dragOverLevel === level.key;
                 return (
-                  <div className="prio-group" key={level.key}>
-                    <div className={`group-head ${level.key}`}>
+                  <div
+                    className={`prio-group${isOver ? " drop-over" : ""}${draggingId ? " drop-zone" : ""}`}
+                    key={level.key}
+                    onDragOver={(e) => { e.preventDefault(); setDragOverLevel(level.key); }}
+                    onDragLeave={() => setDragOverLevel(null)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const id = parseInt(e.dataTransfer.getData("taskId"), 10);
+                      const task = tasks.find((t) => t.id === id);
+                      if (task) setTaskPriority(task, level.key);
+                      setDraggingId(null);
+                      setDragOverLevel(null);
+                    }}
+                  >
+                    <div className={`group-head ${level.key}${isOver ? " over" : ""}`}>
                       <span className="dot" />
                       {level.label}
-                      <span className="group-blurb">{level.blurb}</span>
                       <span className="group-count">{group.length}</span>
+                      {isOver && draggingId && <span className="drop-hint">drop here</span>}
                     </div>
                     {group.map((task) => (
                       <TaskRow
@@ -329,8 +346,14 @@ export default function Home() {
                         onSetPriority={setTaskPriority}
                         onDelete={deleteTask}
                         onEdit={editTask}
+                        onDragStart={setDraggingId}
+                        onDragEnd={() => { setDraggingId(null); setDragOverLevel(null); }}
+                        isDragging={draggingId === task.id}
                       />
                     ))}
+                    {group.length === 0 && draggingId && (
+                      <div className="drop-empty-hint">Drop here to mark {level.label.toLowerCase()}</div>
+                    )}
                   </div>
                 );
               })
@@ -355,6 +378,9 @@ export default function Home() {
                       onSetPriority={setTaskPriority}
                       onDelete={deleteTask}
                       onEdit={editTask}
+                      onDragStart={() => {}}
+                      onDragEnd={() => {}}
+                      isDragging={false}
                     />
                   ))}
               </div>

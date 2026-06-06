@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS, GOALS, HABITS, COUNTDOWNS } from "../lib/content";
+import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS, GOALS, HABITS, COUNTDOWNS, EXAMS } from "../lib/content";
 import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask } from "../lib/task-utils.jsx";
 
 const PILLARS = [
@@ -474,6 +474,39 @@ function WeekAgenda() {
   );
 }
 
+function ExamBlock() {
+  const daysToFirst = daysUntil(EXAMS[0].date);
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return (
+    <div className="exam-block">
+      <div className="exam-block-header">
+        <div className="exam-block-alarm">📚</div>
+        <div className="exam-block-hero">
+          <span className="exam-days-num">{daysToFirst}</span>
+          <span className="exam-days-label">days to first exam</span>
+        </div>
+        <p className="exam-block-stake">Pass all 5 → visa stays valid. No exceptions.</p>
+      </div>
+      <div className="exam-list">
+        {EXAMS.map((e, i) => {
+          const d = new Date(e.date + "T12:00:00");
+          const days = daysUntil(e.date);
+          return (
+            <div className="exam-row" key={i}>
+              <span className="exam-num">#{i + 1}</span>
+              <span className="exam-name">{e.name}</span>
+              <span className="exam-date-info">
+                {dayNames[d.getDay()]}, {d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                <span className="exam-days-badge">{days}d</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function CountdownPanel() {
   return (
     <div className="panel countdown-panel">
@@ -845,6 +878,8 @@ export default function Home() {
           <span className="stat-streak-msg">{streakMsg}</span>
         </div>
       </div>
+
+      <ExamBlock />
 
       <DailyWin />
 

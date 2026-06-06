@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS } from "../lib/content";
+import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS, GOALS, HABITS, COUNTDOWNS } from "../lib/content";
 import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask } from "../lib/task-utils.jsx";
 
 const LEVELS = [
@@ -89,6 +89,128 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDow
         </div>
       )}
       {isDone && !editing && <span className="task-meta">{fmt(task.completed_at)}</span>}
+    </div>
+  );
+}
+
+function daysUntil(dateStr) {
+  return Math.ceil((new Date(dateStr) - new Date()) / 86400000);
+}
+
+function GoalsSection() {
+  return (
+    <section className="goals-section">
+      {GOALS.map((g) => (
+        <div key={g.key} className="goal-card">
+          <div className="goal-icon" style={{ background: g.accent + "18", color: g.accent }}>{g.icon}</div>
+          <div className="goal-body">
+            <div className="goal-title">{g.title}</div>
+            <div className="goal-why">{g.why}</div>
+            <div className="goal-bar-wrap">
+              <div className="goal-bar-fill" style={{ width: `${g.progress}%`, background: g.accent }} />
+            </div>
+            <div className="goal-pct" style={{ color: g.accent }}>{g.progress}% there</div>
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function HabitTracker() {
+  const [data, setData] = useState({});
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - 6 + i);
+    return d.toISOString().slice(0, 10);
+  });
+
+  useEffect(() => {
+    const stored = {};
+    days.forEach((day) => {
+      try {
+        const val = localStorage.getItem(`habits_${day}`);
+        if (val) stored[day] = JSON.parse(val);
+      } catch {}
+    });
+    setData(stored);
+  }, []);
+
+  function toggle(key) {
+    setData((prev) => {
+      const updated = { ...prev[todayStr], [key]: !prev[todayStr]?.[key] };
+      localStorage.setItem(`habits_${todayStr}`, JSON.stringify(updated));
+      return { ...prev, [todayStr]: updated };
+    });
+  }
+
+  const todayDone = HABITS.filter((h) => data[todayStr]?.[h.key]).length;
+
+  return (
+    <div className="panel habit-panel">
+      <div className="panel-head">
+        <h2 className="panel-title">Daily habits</h2>
+        <span className="count">{todayDone}/{HABITS.length} today</span>
+      </div>
+      <p className="panel-lead">Click today's dot to check off. Past days are read-only.</p>
+      <div className="habit-table">
+        <div className="habit-row habit-header-row">
+          <div className="habit-name" />
+          {days.map((d) => (
+            <div key={d} className={`habit-day-label${d === todayStr ? " is-today" : ""}`}>
+              {new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short" })}
+              {d === todayStr && <span className="today-dot" />}
+            </div>
+          ))}
+        </div>
+        {HABITS.map((h) => (
+          <div key={h.key} className="habit-row">
+            <div className="habit-name">{h.label}</div>
+            {days.map((d) => {
+              const done = !!data[d]?.[h.key];
+              const isToday = d === todayStr;
+              return (
+                <div
+                  key={d}
+                  className={`habit-dot${done ? " done" : ""}${isToday ? " clickable" : ""}`}
+                  onClick={() => isToday && toggle(h.key)}
+                  title={isToday ? (done ? "Mark undone" : "Mark done") : undefined}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CountdownPanel() {
+  return (
+    <div className="panel countdown-panel">
+      <div className="panel-head">
+        <h2 className="panel-title">Key dates</h2>
+      </div>
+      <p className="panel-lead">Dates you cannot miss.</p>
+      <div className="countdown-list">
+        {COUNTDOWNS.map((c, i) => {
+          const days = daysUntil(c.date);
+          const tone = days < 30 ? "urgent" : days < 90 ? "important" : "safe";
+          return (
+            <div key={i} className={`countdown-item ${tone}`}>
+              <div className="countdown-days">{days}</div>
+              <div className="countdown-info">
+                <div className="countdown-label">{c.label}</div>
+                <div className="countdown-date">
+                  {new Date(c.date + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -412,6 +534,13 @@ export default function Home() {
             ))}
           </div>
         </aside>
+      </div>
+
+      <GoalsSection />
+
+      <div className="middle-row">
+        <HabitTracker />
+        <CountdownPanel />
       </div>
 
       <section className="vision-section" id="visualize">

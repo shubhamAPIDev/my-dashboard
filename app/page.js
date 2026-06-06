@@ -121,7 +121,7 @@ export default function Home() {
           <div className="photos-stack">
             {PHOTOS.map((p, i) => (
               <figure className="photo-frame" key={i}>
-                <img src={p.src} alt={p.caption} />
+                <img src={p.src} alt={p.caption} loading="eager" />
                 <figcaption>{p.caption}</figcaption>
               </figure>
             ))}

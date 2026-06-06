@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { PROFILE, VISION, PHOTOS } from "../lib/content";
+import { PROFILE, QUOTES, VISION, PHOTOS } from "../lib/content";
 
 const LEVELS = [
   { key: "urgent", label: "Urgent", blurb: "do now" },
@@ -95,6 +95,23 @@ export default function Home() {
         <p className="subtitle">{PROFILE.tagline}</p>
         <span className="datestamp">{today}</span>
       </header>
+
+      {/* ---------- QUOTES ---------- */}
+      <section className="quotes-section">
+        <div className="section-head">
+          <span className="section-num">&mdash;</span>
+          <h2 className="section-title">Words to live by</h2>
+          <span className="section-rule" />
+        </div>
+        <div className="quotes-grid">
+          {QUOTES.map((q, i) => (
+            <blockquote className="quote-card" key={i}>
+              <p className="quote-text">&ldquo;{q.text}&rdquo;</p>
+              <cite className="quote-author">{q.author}</cite>
+            </blockquote>
+          ))}
+        </div>
+      </section>
 
       {/* ---------- TO-DO ---------- */}
       <section>

@@ -85,6 +85,44 @@ body {
 section { margin-bottom: 72px; animation: rise 0.8s ease both; }
 section:nth-of-type(2) { animation-delay: 0.08s; }
 section:nth-of-type(3) { animation-delay: 0.16s; }
+section:nth-of-type(4) { animation-delay: 0.24s; }
+section:nth-of-type(5) { animation-delay: 0.32s; }
+
+/* ---------- quotes ---------- */
+.quotes-section { margin-bottom: 56px; }
+.quotes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.quote-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 22px 20px 18px;
+  box-shadow: 0 4px 14px var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.quote-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px var(--shadow);
+}
+.quote-text {
+  font-family: "Fraunces", serif;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.quote-author {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  font-style: normal;
+}
 
 .section-head {
   display: flex;

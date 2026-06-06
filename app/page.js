@@ -111,8 +111,24 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="main-split">
-        {/* ---------- TO-DO (primary) ---------- */}
+      <div className="dashboard-grid">
+        {/* ---------- YOUR PHOTOS (left) ---------- */}
+        <aside className="panel photos-aside">
+          <div className="panel-head">
+            <h2 className="panel-title">This is me</h2>
+          </div>
+          <p className="aside-lead">The life I&apos;m building.</p>
+          <div className="photos-stack">
+            {PHOTOS.map((p, i) => (
+              <figure className="photo-frame" key={i}>
+                <img src={p.src} alt={p.caption} />
+                <figcaption>{p.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </aside>
+
+        {/* ---------- TO-DO (center) ---------- */}
         <section className="panel tasks-panel">
           <div className="panel-head">
             <h2 className="panel-title">To-do</h2>
@@ -198,7 +214,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ---------- QUOTES (sidebar) ---------- */}
+        {/* ---------- QUOTES (right) ---------- */}
         <aside className="panel quotes-aside">
           <div className="panel-head">
             <h2 className="panel-title">Believe</h2>
@@ -243,19 +259,6 @@ export default function Home() {
                 <p className="affirmation">{v.affirmation}</p>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- PHOTOS ---------- */}
-      <section className="panel photos-panel-wide">
-        <div className="panel-head">
-          <h2 className="panel-title">Future memories</h2>
-        </div>
-        <p className="panel-lead">Pictures of the life you&apos;re creating. Add your own when ready.</p>
-        <div className="photo-grid">
-          {PHOTOS.map((p, i) => (
-            <img src={p} alt={"photo " + (i + 1)} key={i} />
           ))}
         </div>
       </section>

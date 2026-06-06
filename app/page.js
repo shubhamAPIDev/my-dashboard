@@ -239,7 +239,10 @@ function WeekAgenda() {
   return (
     <div className="week-agenda panel">
       <div className="week-header">
-        <span className="eyebrow">This week</span>
+        <h2 className="panel-title">This week</h2>
+        <span className="eyebrow" style={{color:"var(--ink-soft)"}}>
+          {new Date().toLocaleDateString("en-GB",{month:"long",year:"numeric"})}
+        </span>
       </div>
       <div className="week-days">
         {days.map((d) => {
@@ -583,8 +586,6 @@ export default function Home() {
         </div>
       </header>
 
-      <WeekAgenda />
-
       <div className="dashboard-grid">
         <aside className="panel photos-aside">
           <div className="panel-head">
@@ -740,6 +741,8 @@ export default function Home() {
           </div>
         </aside>
       </div>
+
+      <WeekAgenda />
 
       <GoalsSection />
 

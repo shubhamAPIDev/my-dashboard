@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS } from "../lib/content";
+import {
+  dueBadgeMeta,
+  sortByDue,
+  linkifyNotes,
+  isFocusTask,
+  CATEGORY_LABELS,
+} from "../lib/task-utils.jsx";
 
 const LEVELS = [
   { key: "urgent", label: "Urgent", blurb: "do now" },
@@ -10,11 +17,84 @@ const LEVELS = [
   { key: "todo", label: "To-do", blurb: "someday" },
 ];
 
+function DueBadge({ dueDate }) {
+  const meta = dueBadgeMeta(dueDate);
+  if (!meta) return null;
+  return (
+    <span className={`due-badge ${meta.tone}`} title={meta.diff < 0 ? "Overdue" : `${meta.diff} days left`}>
+      {meta.label}
+    </span>
+  );
+}
+
+function TaskRow({ task, onToggle, onPriority, onDelete, showStep }) {
+  const [open, setOpen] = useState(false);
+  const hasNotes = Boolean(task.notes);
+  const isDone = task.status === "done";
+
+  return (
+    <div className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}`}>
+      <div className={`checkbox${isDone ? " checked" : ""}`} onClick={() => onToggle(task)} />
+      <div className="task-body">
+        <div className="task-top">
+          {showStep && task.step_order && (
+            <span className="step-badge">Step {task.step_order}</span>
+          )}
+          {task.category && !isDone && (
+            <span className={`cat-chip ${task.category}`}>{CATEGORY_LABELS[task.category] || task.category}</span>
+          )}
+          <span className={`task-title${isDone ? " done" : ""}`}>{task.text}</span>
+          {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
+        </div>
+        {hasNotes && (
+          <>
+            {!isDone && (
+              <button type="button" className="notes-toggle" onClick={() => setOpen(!open)}>
+                {open ? "Hide details" : "Show details"}
+              </button>
+            )}
+            {(open || isDone) && <p className="task-notes">{linkifyNotes(task.notes)}</p>}
+          </>
+        )}
+      </div>
+      {!isDone && (
+        <div className="task-actions">
+          <button className="flag" title="Change priority" onClick={() => onPriority(task)}>
+            &#8645;
+          </button>
+          <button className="del" title="Delete" onClick={() => onDelete(task)}>
+            &#10005;
+          </button>
+        </div>
+      )}
+      {isDone && (
+        <>
+          <span className="task-meta">{fmt(task.completed_at)}</span>
+          <button className="del" onClick={() => onDelete(task)}>
+            &#10005;
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function fmt(d) {
+  if (!d) return "";
+  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
+function cyclePriority(p) {
+  const order = ["urgent", "important", "todo"];
+  return order[(order.indexOf(p) + 1) % order.length];
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState("urgent");
   const [loading, setLoading] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
 
   useEffect(() => {
@@ -71,7 +151,8 @@ export default function Home() {
     await supabase.from("tasks").update(update).eq("id", task.id);
   }
 
-  async function changePriority(task, level) {
+  async function changePriority(task) {
+    const level = cyclePriority(task.priority || "todo");
     setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, priority: level } : x)));
     await supabase.from("tasks").update({ priority: level }).eq("id", task.id);
   }
@@ -86,15 +167,7 @@ export default function Home() {
     .filter((t) => t.status === "done")
     .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at));
 
-  function fmt(d) {
-    if (!d) return "";
-    return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  }
-
-  function cyclePriority(p) {
-    const order = ["urgent", "important", "todo"];
-    return order[(order.indexOf(p) + 1) % order.length];
-  }
+  const focusTasks = active.filter(isFocusTask).sort(sortByDue).slice(0, 5);
 
   return (
     <div className="wrap">
@@ -112,7 +185,6 @@ export default function Home() {
       </header>
 
       <div className="dashboard-grid">
-        {/* ---------- YOUR PHOTOS (left) ---------- */}
         <aside className="panel photos-aside">
           <div className="panel-head">
             <h2 className="panel-title">This is me</h2>
@@ -128,13 +200,29 @@ export default function Home() {
           </div>
         </aside>
 
-        {/* ---------- TO-DO (center) ---------- */}
         <section className="panel tasks-panel">
           <div className="panel-head">
             <h2 className="panel-title">To-do</h2>
             <span className="count">{active.length} open</span>
           </div>
-          <p className="panel-lead">Each task moves you closer to what you see below.</p>
+          <p className="panel-lead">Scan the focus strip first — then work through the rest.</p>
+
+          {focusTasks.length > 0 && (
+            <div className="focus-strip">
+              <div className="focus-head">
+                <span className="focus-label">Focus · next 14 days</span>
+                <span className="focus-count">{focusTasks.length}</span>
+              </div>
+              <div className="focus-cards">
+                {focusTasks.map((task) => (
+                  <div key={task.id} className={`focus-card ${task.priority}`}>
+                    <DueBadge dueDate={task.due_date} />
+                    <span className="focus-title">{task.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="composer">
             <input
@@ -165,8 +253,14 @@ export default function Home() {
               <p className="empty">Nothing open. Enjoy the quiet, or add something.</p>
             ) : (
               LEVELS.map((level) => {
-                const group = active.filter((t) => (t.priority || "todo") === level.key);
+                const group = active
+                  .filter((t) => (t.priority || "todo") === level.key)
+                  .sort(sortByDue);
                 if (group.length === 0) return null;
+
+                const visaChain = group.filter((t) => t.category === "visa" && t.step_order);
+                const rest = group.filter((t) => !(t.category === "visa" && t.step_order));
+
                 return (
                   <div className="prio-group" key={level.key}>
                     <div className={`group-head ${level.key}`}>
@@ -175,21 +269,31 @@ export default function Home() {
                       <span className="group-blurb">{level.blurb}</span>
                       <span className="group-count">{group.length}</span>
                     </div>
-                    {group.map((task) => (
-                      <div className={`task ${level.key}`} key={task.id}>
-                        <div className="checkbox" onClick={() => toggleTask(task)} />
-                        <span className="task-text">{task.text}</span>
-                        <button
-                          className="flag"
-                          title="Change priority"
-                          onClick={() => changePriority(task, cyclePriority(task.priority || "todo"))}
-                        >
-                          &#8645;
-                        </button>
-                        <button className="del" onClick={() => deleteTask(task)}>
-                          &#10005;
-                        </button>
+
+                    {visaChain.length > 0 && (
+                      <div className="visa-chain">
+                        <div className="chain-label">Legal path</div>
+                        {visaChain.map((task) => (
+                          <TaskRow
+                            key={task.id}
+                            task={task}
+                            showStep
+                            onToggle={toggleTask}
+                            onPriority={changePriority}
+                            onDelete={deleteTask}
+                          />
+                        ))}
                       </div>
+                    )}
+
+                    {rest.map((task) => (
+                      <TaskRow
+                        key={task.id}
+                        task={task}
+                        onToggle={toggleTask}
+                        onPriority={changePriority}
+                        onDelete={deleteTask}
+                      />
                     ))}
                   </div>
                 );
@@ -197,24 +301,30 @@ export default function Home() {
             )}
 
             {done.length > 0 && (
-              <>
-                <div className="completed-head">Completed &middot; {done.length}</div>
-                {done.map((task) => (
-                  <div className="task" key={task.id}>
-                    <div className="checkbox checked" onClick={() => toggleTask(task)} />
-                    <span className="task-text done">{task.text}</span>
-                    <span className="task-meta">{fmt(task.completed_at)}</span>
-                    <button className="del" onClick={() => deleteTask(task)}>
-                      &#10005;
-                    </button>
-                  </div>
-                ))}
-              </>
+              <div className="completed-block">
+                <button
+                  type="button"
+                  className="completed-toggle"
+                  onClick={() => setShowCompleted(!showCompleted)}
+                >
+                  Completed · {done.length}
+                  <span className="chevron">{showCompleted ? "▾" : "▸"}</span>
+                </button>
+                {showCompleted &&
+                  done.map((task) => (
+                    <TaskRow
+                      key={task.id}
+                      task={task}
+                      onToggle={toggleTask}
+                      onPriority={changePriority}
+                      onDelete={deleteTask}
+                    />
+                  ))}
+              </div>
             )}
           </div>
         </section>
 
-        {/* ---------- QUOTES (right) ---------- */}
         <aside className="panel quotes-aside">
           <div className="panel-head">
             <h2 className="panel-title">Believe</h2>
@@ -231,11 +341,10 @@ export default function Home() {
         </aside>
       </div>
 
-      {/* ---------- MANIFESTATION ---------- */}
       <section className="panel manifest-panel" id="visualize">
         <div className="manifest-head">
           <div className="manifest-copy">
-            <span className="manifest-eyebrow">Scroll down &middot; see your future</span>
+            <span className="manifest-eyebrow">Scroll down · see your future</span>
             <h2 className="manifest-title">{MANIFESTATION.title}</h2>
             <p className="manifest-intro">{MANIFESTATION.intro}</p>
           </div>
@@ -264,7 +373,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer>Visualize daily &middot; act today &middot; syncs across all your devices</footer>
+      <footer>Visualize daily · act today · syncs across all your devices</footer>
     </div>
   );
 }

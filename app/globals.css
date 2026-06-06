@@ -168,9 +168,9 @@ body {
 /* ---------- main layout ---------- */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(240px, 280px);
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(220px, 260px);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
   margin-bottom: 16px;
   animation: rise 0.7s ease both;
 }
@@ -231,12 +231,23 @@ body {
 .tasks-panel {
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - 200px);
+  padding: 26px 28px;
+}
+
+.tasks-panel .panel-title {
+  font-size: 26px;
+}
+
+.tasks-panel .panel-lead {
+  font-size: 14px;
+  margin-bottom: 18px;
 }
 
 .composer {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .composer input {
@@ -244,9 +255,9 @@ body {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  padding: 11px 14px;
+  padding: 14px 16px;
   font-family: "Newsreader", serif;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--ink);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -262,9 +273,9 @@ body {
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 0 18px;
+  padding: 0 22px;
   font-family: "Spline Sans Mono", monospace;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -277,8 +288,8 @@ body {
 
 .prio-picker {
   display: flex;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 8px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
@@ -286,9 +297,9 @@ body {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 5px 13px;
+  padding: 7px 16px;
   font-family: "Spline Sans Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--ink-soft);
   cursor: pointer;
@@ -303,15 +314,15 @@ body {
 .task-list {
   flex: 1;
   overflow-y: auto;
-  max-height: 520px;
-  padding-right: 2px;
+  min-height: 480px;
+  padding-right: 6px;
 }
 
 .task {
   display: flex;
   align-items: flex-start;
-  gap: 11px;
-  padding: 10px 6px;
+  gap: 14px;
+  padding: 14px 8px;
   border-bottom: 1px solid var(--line);
   border-radius: 6px;
   animation: rise 0.35s ease both;
@@ -321,12 +332,12 @@ body {
 .task:last-child { border-bottom: none; }
 
 .checkbox {
-  width: 19px;
-  height: 19px;
+  width: 22px;
+  height: 22px;
   border: 1.5px solid var(--brand-light);
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 4px;
   cursor: pointer;
   display: grid;
   place-items: center;
@@ -345,7 +356,7 @@ body {
   transform: rotate(45deg) translate(-1px, -1px);
 }
 
-.task-text { flex: 1; font-size: 15px; line-height: 1.45; }
+.task-text { flex: 1; font-size: 17px; line-height: 1.5; }
 .task-text.done {
   color: var(--ink-soft);
   text-decoration: line-through;
@@ -382,19 +393,19 @@ body {
 
 .loading { font-family: "Spline Sans Mono", monospace; font-size: 11px; }
 
-.prio-group { margin-bottom: 14px; }
+.prio-group { margin-bottom: 22px; }
 .prio-group:last-child { margin-bottom: 0; }
 
 .group-head {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-family: "Spline Sans Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 4px;
-  padding: 0 6px;
+  margin-bottom: 6px;
+  padding: 0 8px;
 }
 
 .group-head .dot { width: 7px; height: 7px; border-radius: 50%; }
@@ -636,6 +647,13 @@ body {
     aspect-ratio: 3 / 4;
     min-height: 180px;
   }
+  .tasks-panel {
+    min-height: auto;
+    order: 0;
+  }
+  .task-list {
+    min-height: 360px;
+  }
 }
 
 @media (max-width: 720px) {
@@ -659,7 +677,8 @@ body {
     flex-direction: column;
     min-width: 0;
   }
-  .task-list { max-height: none; }
+  .task-list { max-height: none; min-height: 320px; }
+  .tasks-panel { min-height: auto; padding: 22px; }
 }
 
 footer {

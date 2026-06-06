@@ -209,13 +209,13 @@ body {
   width: 100%;
   display: block;
   aspect-ratio: 1 / 1;
-  object-fit: cover;
-  object-position: center top;
+  object-fit: contain;
   background: var(--brand-soft);
 }
 
 .photo-frame:first-child img {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
 }
 
 .photo-frame figcaption {

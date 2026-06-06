@@ -760,155 +760,83 @@ body {
   font-style: normal;
 }
 
-/* ── manifestation ─────────────────────────────── */
-.manifest-panel {
-  margin-bottom: 16px;
+/* ── vision section ────────────────────────────── */
+.vision-section {
   margin-top: 8px;
-  padding: 36px 36px 44px;
-  scroll-margin-top: 24px;
+  margin-bottom: 16px;
   animation: rise 0.7s ease both;
 }
 
-.manifest-head {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 32px;
-  align-items: start;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--line);
+.vision-section-head {
+  margin-bottom: 18px;
 }
 
-.manifest-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--brand);
-  display: block;
-  margin-bottom: 10px;
-}
-
-.manifest-title {
+.vision-section-title {
   font-family: 'Fraunces', serif;
   font-weight: 400;
-  font-size: clamp(26px, 3.5vw, 36px);
-  letter-spacing: -0.025em;
+  font-size: 26px;
+  letter-spacing: -0.02em;
   color: var(--ink);
-  line-height: 1.1;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
-.manifest-intro {
-  font-size: 15px;
-  line-height: 1.65;
-  color: var(--ink-2);
-  margin-top: 10px;
-  max-width: 54ch;
-}
-
-.manifest-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 220px;
-}
-
-.manifest-step {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 10px 12px;
-  background: var(--brand-soft);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--brand-muted);
-}
-
-.manifest-step .step-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  color: #fff;
-  background: var(--brand);
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.manifest-step strong {
-  display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--brand-dark);
-  margin-bottom: 2px;
-}
-
-.manifest-step span:last-child {
+.vision-section-sub {
+  font-size: 13px;
   color: var(--ink-soft);
-  font-size: 12px;
-  line-height: 1.4;
 }
 
 .vision-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
 }
 
-.vision-grid .vision-card:last-child:nth-child(3n+1) { grid-column: 2; }
-
 .vision-card {
-  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  aspect-ratio: 4 / 5;
-  min-height: 320px;
-  border: 1.5px solid var(--brand-muted);
-  box-shadow: var(--shadow);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-  background: var(--ink);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .vision-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
 }
 
-.vision-card img {
+.vision-img-wrap {
+  background: var(--brand-soft);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.vision-img-wrap img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
 }
 
-.vision-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 48px 16px 16px;
-  background: linear-gradient(transparent, rgba(30,24,18,0.72) 20%, rgba(30,24,18,0.94));
-  color: #fff;
+.vision-body {
+  padding: 12px 14px 14px;
 }
 
-.vision-card .label {
+.vision-label {
   font-family: 'Fraunces', serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 5px;
   line-height: 1.3;
-  margin-bottom: 6px;
 }
 
-.vision-card .affirmation {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+.vision-affirmation {
+  font-size: 12px;
   font-style: italic;
-  line-height: 1.45;
-  color: rgba(255,255,255,0.9);
+  color: var(--ink-soft);
+  line-height: 1.5;
 }
 
 /* ── responsive ────────────────────────────────── */
@@ -927,9 +855,7 @@ body {
 @media (max-width: 680px) {
   .photos-stack { grid-template-columns: repeat(2, 1fr); }
   .quotes-aside { position: static; max-height: none; }
-  .manifest-head { grid-template-columns: 1fr; }
-  .vision-grid { grid-template-columns: 1fr; }
-  .manifest-panel { padding: 24px 20px; }
+  .vision-grid { grid-template-columns: repeat(2, 1fr); }
   .tasks-panel { padding: 20px; }
 }
 

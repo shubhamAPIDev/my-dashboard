@@ -414,32 +414,21 @@ export default function Home() {
         </aside>
       </div>
 
-      <section className="panel manifest-panel" id="visualize">
-        <div className="manifest-head">
-          <div className="manifest-copy">
-            <span className="manifest-eyebrow">Scroll down · see your future</span>
-            <h2 className="manifest-title">{MANIFESTATION.title}</h2>
-            <p className="manifest-intro">{MANIFESTATION.intro}</p>
-          </div>
-          <div className="manifest-steps">
-            {MANIFESTATION.steps.map((step, i) => (
-              <div className="manifest-step" key={i}>
-                <span className="step-num">{i + 1}</span>
-                <div>
-                  <strong>{step.label}</strong>
-                  <span>{step.blurb}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+      <section className="vision-section" id="visualize">
+        <div className="vision-section-head">
+          <span className="eyebrow">Your future</span>
+          <h2 className="vision-section-title">Visualise &amp; manifest</h2>
+          <p className="vision-section-sub">Look at these daily. Feel them as already real.</p>
         </div>
         <div className="vision-grid">
           {VISION.map((v, i) => (
             <article className="vision-card" key={i}>
-              <img src={v.image} alt={v.label} loading="lazy" />
-              <div className="vision-caption">
-                <div className="label">{v.label}</div>
-                <p className="affirmation">{v.affirmation}</p>
+              <div className="vision-img-wrap">
+                <img src={v.image} alt={v.label} loading="lazy" />
+              </div>
+              <div className="vision-body">
+                <div className="vision-label">{v.label}</div>
+                <p className="vision-affirmation">&ldquo;{v.affirmation}&rdquo;</p>
               </div>
             </article>
           ))}

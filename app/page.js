@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { PROFILE, QUOTES, VISION, PHOTOS } from "../lib/content";
+import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS } from "../lib/content";
 
 const LEVELS = [
   { key: "urgent", label: "Urgent", blurb: "do now" },
@@ -119,6 +119,7 @@ export default function Home() {
             <h2 className="panel-title">To-do</h2>
             <span className="count">{active.length} open</span>
           </div>
+          <p className="panel-lead">Today&apos;s actions make the vision real. One task at a time.</p>
 
           <div className="composer">
             <input
@@ -200,7 +201,8 @@ export default function Home() {
 
         {/* ---------- QUOTES (sidebar) ---------- */}
         <aside className="panel quotes-aside">
-          <h2 className="panel-title">Words to live by</h2>
+          <h2 className="panel-title">Believe</h2>
+          <p className="aside-lead">Read one before you start. Carry it through the day.</p>
           <div className="quotes-stack">
             {QUOTES.map((q, i) => (
               <blockquote className="quote-card" key={i}>
@@ -212,35 +214,52 @@ export default function Home() {
         </aside>
       </div>
 
-      {/* ---------- VISION + PHOTOS ---------- */}
-      <div className="media-row">
-        <section className="panel media-panel">
-          <div className="panel-head">
-            <h2 className="panel-title">Vision board</h2>
+      {/* ---------- MANIFESTATION ---------- */}
+      <section className="panel manifest-panel">
+        <div className="manifest-head">
+          <div>
+            <h2 className="panel-title">{MANIFESTATION.title}</h2>
+            <p className="manifest-intro">{MANIFESTATION.intro}</p>
           </div>
-          <div className="vision-grid">
-            {VISION.map((v, i) => (
-              <div className="vision-card" key={i}>
-                <img src={v.image} alt={v.label} />
-                <div className="label">{v.label}</div>
+          <div className="manifest-steps">
+            {MANIFESTATION.steps.map((step, i) => (
+              <div className="manifest-step" key={i}>
+                <span className="step-num">{i + 1}</span>
+                <div>
+                  <strong>{step.label}</strong>
+                  <span>{step.blurb}</span>
+                </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+        <div className="vision-grid">
+          {VISION.map((v, i) => (
+            <div className="vision-card" key={i}>
+              <img src={v.image} alt={v.label} />
+              <div className="vision-caption">
+                <div className="label">{v.label}</div>
+                <p className="affirmation">{v.affirmation}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        <section className="panel media-panel photos-panel">
-          <div className="panel-head">
-            <h2 className="panel-title">Photos</h2>
-          </div>
-          <div className="photo-grid">
-            {PHOTOS.map((p, i) => (
-              <img src={p} alt={"photo " + (i + 1)} key={i} />
-            ))}
-          </div>
-        </section>
-      </div>
+      {/* ---------- PHOTOS ---------- */}
+      <section className="panel photos-panel-wide">
+        <div className="panel-head">
+          <h2 className="panel-title">Future memories</h2>
+        </div>
+        <p className="panel-lead">Pictures of the life you&apos;re creating. Add your own when ready.</p>
+        <div className="photo-grid">
+          {PHOTOS.map((p, i) => (
+            <img src={p} alt={"photo " + (i + 1)} key={i} />
+          ))}
+        </div>
+      </section>
 
-      <footer>Built for daily use &middot; edits sync across all your devices</footer>
+      <footer>Visualize daily &middot; act today &middot; syncs across all your devices</footer>
     </div>
   );
 }

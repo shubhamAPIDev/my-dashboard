@@ -187,6 +187,62 @@ function HabitTracker() {
   );
 }
 
+function FocusCard({ task, onDone }) {
+  const [phase, setPhase] = useState("idle"); // idle | counting | go | done
+  const [count, setCount] = useState(5);
+
+  function startCountdown() {
+    setPhase("counting");
+    setCount(5);
+    let n = 5;
+    const iv = setInterval(() => {
+      n--;
+      if (n <= 0) {
+        clearInterval(iv);
+        setPhase("go");
+      } else {
+        setCount(n);
+      }
+    }, 1000);
+  }
+
+  function reset() { setPhase("idle"); setCount(5); }
+
+  const shortTask = task.text.split(".")[0] + (task.text.includes(".") ? "." : "");
+
+  if (phase === "idle") return (
+    <div className="focus-now-card">
+      <div className="focus-now-label">Start with this</div>
+      <div className="focus-now-task">{shortTask}</div>
+      <p className="focus-two-min">You don&apos;t have to finish. Just start for 2 minutes.</p>
+      <button className="focus-countdown-btn" onClick={startCountdown}>
+        5 — 4 — 3 — 2 — 1 — Go
+      </button>
+    </div>
+  );
+
+  if (phase === "counting") return (
+    <div className="focus-now-card focus-counting">
+      <div className="focus-now-label">Starting in…</div>
+      <div className="focus-count-num">{count}</div>
+      <div className="focus-now-task">{shortTask}</div>
+    </div>
+  );
+
+  if (phase === "go") return (
+    <div className="focus-now-card focus-go">
+      <div className="focus-go-num">Go.</div>
+      <p className="focus-go-msg">Open it. Touch it. Begin. That&apos;s all.</p>
+      <div className="focus-go-actions">
+        <button className="focus-now-done" onClick={() => { onDone(task); reset(); }}>I did this ✓</button>
+        <button className="focus-reset-btn" onClick={reset}>Not yet</button>
+      </div>
+    </div>
+  );
+
+  return null;
+}
+
 function WeekAgenda() {
   const [events, setEvents] = useState([]);
   const [addingToDay, setAddingToDay] = useState(null); // "2026-06-07"
@@ -675,15 +731,7 @@ export default function Home() {
             ))}
           </div>
 
-          {focusTask && (
-            <div className="focus-now-card">
-              <div className="focus-now-label">Start with this</div>
-              <div className="focus-now-task">{focusTask.text.split(".")[0]}{focusTask.text.includes(".") ? "." : ""}</div>
-              <button className="focus-now-done" onClick={() => toggleTask(focusTask)}>
-                I did this ✓
-              </button>
-            </div>
-          )}
+          {focusTask && <FocusCard task={focusTask} onDone={toggleTask} />}
         </aside>
 
         <section className="panel tasks-panel">

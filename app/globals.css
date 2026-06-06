@@ -305,6 +305,99 @@ body {
 .focus-now-done:hover { background: var(--brand-dark); transform: scale(1.02); }
 .focus-now-done:active { transform: scale(0.98); }
 
+.focus-two-min {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.focus-countdown-btn {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s, transform 0.1s;
+}
+.focus-countdown-btn:hover { background: var(--brand-dark); transform: scale(1.02); }
+
+/* counting phase */
+.focus-counting {
+  align-items: center;
+  text-align: center;
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
+.focus-count-num {
+  font-family: 'Fraunces', serif;
+  font-size: 56px;
+  font-weight: 300;
+  color: var(--brand);
+  line-height: 1;
+  animation: pop 0.25s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(1.4); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* go phase */
+.focus-go {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.focus-go-num {
+  font-family: 'Fraunces', serif;
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--brand);
+  line-height: 1;
+  font-style: italic;
+  animation: pop 0.3s ease;
+}
+
+.focus-go-msg {
+  font-size: 12px;
+  color: var(--ink-mid);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.focus-go-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.focus-reset-btn {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.focus-reset-btn:hover { border-color: var(--ink-mid); color: var(--ink); }
+
 /* ── empty-done state ──────────────────────────── */
 .empty-done {
   text-align: center;

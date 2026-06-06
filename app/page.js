@@ -22,7 +22,7 @@ function fmt(d) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDownHandle, isDragging }) {
+function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDownHandle, isDragging, isInsertBefore, rowRef }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
   const isDone = task.status === "done";
@@ -44,7 +44,7 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDow
   }
 
   return (
-    <div className={`task ${currentPriority}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}`}>
+    <div ref={rowRef} className={`task ${currentPriority}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}${isInsertBefore ? " insert-before" : ""}`}>
       {!isDone && !editing && (
         <div
           className="drag-handle"
@@ -223,32 +223,111 @@ export default function Home() {
   const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
-  const [drag, setDrag] = useState(null); // { task, x, y, targetLevel }
-  const groupRefs = useRef({});            // level key → DOM element
+  const [drag, setDrag] = useState(null);
+  const [orderedIds, setOrderedIds] = useState([]);
 
-  // Pointer-based drag — attached to window while dragging
+  // Refs — always current, safe to read in event handlers
+  const dragRef = useRef(null);
+  const activeRef = useRef([]);
+  const orderedIdsRef = useRef([]);
+  const groupRefs = useRef({});
+  const taskRowRefs = useRef({});
+  const setPriorityRef = useRef(null);
+
+  // Load saved task order on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("task_order");
+      if (saved) {
+        const ids = JSON.parse(saved);
+        setOrderedIds(ids);
+        orderedIdsRef.current = ids;
+      }
+    } catch {}
+  }, []);
+
+  function saveOrder(ids) {
+    orderedIdsRef.current = ids;
+    setOrderedIds(ids);
+    try { localStorage.setItem("task_order", JSON.stringify(ids)); } catch {}
+  }
+
+  // Register pointer handlers once per drag session
   useEffect(() => {
     if (!drag) return;
 
     function onMove(e) {
-      const y = e.clientY ?? e.touches?.[0]?.clientY;
-      const x = e.clientX ?? e.touches?.[0]?.clientX;
-      let targetLevel = drag.targetLevel;
+      const d = dragRef.current;
+      if (!d) return;
+      const y = e.clientY;
+      const x = e.clientX;
+
+      // Which group is the cursor in?
+      let targetLevel = d.targetLevel;
       for (const [key, el] of Object.entries(groupRefs.current)) {
         if (!el) continue;
         const r = el.getBoundingClientRect();
         if (y >= r.top && y <= r.bottom) { targetLevel = key; break; }
       }
-      setDrag((d) => d ? { ...d, x, y, targetLevel } : null);
+
+      // Which task row should we insert before?
+      const orderMap = Object.fromEntries(orderedIdsRef.current.map((id, i) => [id, i]));
+      const groupTasks = activeRef.current
+        .filter((t) => (t.priority || "todo") === targetLevel && t.id !== d.task.id)
+        .sort((a, b) => (orderMap[a.id] ?? 999999) - (orderMap[b.id] ?? 999999));
+
+      let insertBeforeId = null;
+      for (const t of groupTasks) {
+        const el = taskRowRefs.current[t.id];
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (y < r.top + r.height / 2) { insertBeforeId = t.id; break; }
+      }
+
+      const next = { ...d, x, y, targetLevel, insertBeforeId };
+      dragRef.current = next;
+      setDrag(next);
     }
 
     function onUp() {
-      setDrag((d) => {
-        if (d && d.targetLevel !== (d.task.priority || "todo")) {
-          setTaskPriority(d.task, d.targetLevel);
-        }
-        return null;
+      const d = dragRef.current;
+      if (!d) { dragRef.current = null; setDrag(null); return; }
+
+      const { task, targetLevel, insertBeforeId } = d;
+      const currentActive = activeRef.current;
+
+      // Build new order: remove dragged task, ensure all active tasks tracked
+      let newOrder = orderedIdsRef.current.filter((id) => id !== task.id);
+      currentActive.forEach((t) => {
+        if (t.id !== task.id && !newOrder.includes(t.id)) newOrder.push(t.id);
       });
+
+      // Insert at computed position
+      if (insertBeforeId != null && newOrder.includes(insertBeforeId)) {
+        newOrder.splice(newOrder.indexOf(insertBeforeId), 0, task.id);
+      } else {
+        // Append after last task in target group
+        const orderMap = Object.fromEntries(newOrder.map((id, i) => [id, i]));
+        const groupIds = currentActive
+          .filter((t) => (t.priority || "todo") === targetLevel && t.id !== task.id)
+          .sort((a, b) => (orderMap[a.id] ?? 999999) - (orderMap[b.id] ?? 999999))
+          .map((t) => t.id);
+        const lastId = groupIds[groupIds.length - 1];
+        if (lastId && newOrder.includes(lastId)) {
+          newOrder.splice(newOrder.indexOf(lastId) + 1, 0, task.id);
+        } else {
+          newOrder.push(task.id);
+        }
+      }
+
+      saveOrder(newOrder);
+
+      if (targetLevel !== (task.priority || "todo")) {
+        setPriorityRef.current?.(task, targetLevel);
+      }
+
+      dragRef.current = null;
+      setDrag(null);
     }
 
     window.addEventListener("pointermove", onMove);
@@ -334,6 +413,7 @@ export default function Home() {
       setTasks((t) => t.map((x) => (x.id === task.id ? task : x)));
     }
   }
+  setPriorityRef.current = setTaskPriority; // keep ref current for drag handler
 
   async function deleteTask(task) {
     setTasks((t) => t.filter((x) => x.id !== task.id));
@@ -355,15 +435,23 @@ export default function Home() {
 
   function startDrag(e, task) {
     e.preventDefault();
-    setDrag({ task, x: e.clientX, y: e.clientY, targetLevel: task.priority || "todo" });
+    const d = { task, x: e.clientX, y: e.clientY, targetLevel: task.priority || "todo", insertBeforeId: null };
+    dragRef.current = d;
+    setDrag(d);
   }
 
   const active = tasks.filter((t) => t.status !== "done");
+  activeRef.current = active; // keep ref current
+
   const done = tasks
     .filter((t) => t.status === "done")
     .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at));
 
-  const focusTasks = active.filter(isFocusTask).sort(sortByDue).slice(0, 5);
+  // Sort active tasks by custom drag order; new tasks fall to the end
+  const orderMap = Object.fromEntries(orderedIds.map((id, i) => [id, i]));
+  const sortedActive = [...active].sort((a, b) => (orderMap[a.id] ?? 999999) - (orderMap[b.id] ?? 999999));
+
+  const focusTasks = sortedActive.filter(isFocusTask).slice(0, 5);
 
   return (
     <div className="wrap" style={drag ? { userSelect: "none" } : undefined}>
@@ -451,9 +539,7 @@ export default function Home() {
               <p className="empty">Nothing open. Enjoy the quiet, or add something.</p>
             ) : (
               LEVELS.map((level) => {
-                const group = active
-                  .filter((t) => (t.priority || "todo") === level.key)
-                  .sort(sortByDue);
+                const group = sortedActive.filter((t) => (t.priority || "todo") === level.key);
                 const isTarget = drag?.targetLevel === level.key;
                 const isDraggingAny = !!drag;
                 return (
@@ -465,7 +551,7 @@ export default function Home() {
                     <div className={`group-head ${level.key}${isTarget ? " over" : ""}`}>
                       <span className="dot" />
                       {level.label}
-                      <span className="group-count">{group.length}</span>
+                      <span className="group-count">{group.filter(t => t.id !== drag?.task.id).length}</span>
                       {isTarget && drag && drag.task.priority !== level.key && (
                         <span className="drop-hint">→ move here</span>
                       )}
@@ -480,6 +566,8 @@ export default function Home() {
                         onEdit={editTask}
                         onPointerDownHandle={startDrag}
                         isDragging={drag?.task.id === task.id}
+                        isInsertBefore={drag?.insertBeforeId === task.id}
+                        rowRef={(el) => { taskRowRefs.current[task.id] = el; }}
                       />
                     ))}
                     {group.length === 0 && (

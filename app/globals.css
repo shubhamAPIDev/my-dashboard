@@ -637,6 +637,18 @@ body {
 /* task edit */
 .task.is-editing { background: var(--brand-soft); border-left-width: 3px; }
 
+.task.insert-before::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: var(--brand);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
 .task-edit textarea {
   width: 100%;
   background: #fff;

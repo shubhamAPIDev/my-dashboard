@@ -660,14 +660,6 @@ export default function Home() {
         </div>
       </div>
 
-      {focusTask && (
-        <div className="focus-now-card">
-          <div className="focus-now-label">Right now, do this</div>
-          <div className="focus-now-task">{focusTask.text.split(".")[0]}{focusTask.text.includes(".") ? "." : ""}</div>
-          <button className="focus-now-done" onClick={() => toggleTask(focusTask)}>Mark done ✓</button>
-        </div>
-      )}
-
       <div className="dashboard-grid">
         <aside className="panel photos-aside">
           <div className="panel-head">
@@ -682,6 +674,16 @@ export default function Home() {
               </figure>
             ))}
           </div>
+
+          {focusTask && (
+            <div className="focus-now-card">
+              <div className="focus-now-label">Start with this</div>
+              <div className="focus-now-task">{focusTask.text.split(".")[0]}{focusTask.text.includes(".") ? "." : ""}</div>
+              <button className="focus-now-done" onClick={() => toggleTask(focusTask)}>
+                I did this ✓
+              </button>
+            </div>
+          )}
         </aside>
 
         <section className="panel tasks-panel">

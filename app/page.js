@@ -118,7 +118,7 @@ export default function Home() {
             <h2 className="panel-title">To-do</h2>
             <span className="count">{active.length} open</span>
           </div>
-          <p className="panel-lead">Today&apos;s actions make the vision real. One task at a time.</p>
+          <p className="panel-lead">Each task moves you closer to what you see below.</p>
 
           <div className="composer">
             <input
@@ -200,8 +200,10 @@ export default function Home() {
 
         {/* ---------- QUOTES (sidebar) ---------- */}
         <aside className="panel quotes-aside">
-          <h2 className="panel-title">Believe</h2>
-          <p className="aside-lead">Read one before you start. Carry it through the day.</p>
+          <div className="panel-head">
+            <h2 className="panel-title">Believe</h2>
+          </div>
+          <p className="aside-lead">Read one before you start.</p>
           <div className="quotes-stack">
             {QUOTES.map((q, i) => (
               <blockquote className="quote-card" key={i}>

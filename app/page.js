@@ -104,7 +104,6 @@ export default function Home() {
           <h1 className="title">
             Hello, <em>{PROFILE.name}</em>
           </h1>
-          <p className="subtitle">{PROFILE.tagline}</p>
         </div>
         <div className="datetime">
           <span className="datestamp">{now.date}</span>

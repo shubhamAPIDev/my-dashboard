@@ -5,6 +5,116 @@ import { supabase } from "../lib/supabase";
 import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS, GOALS, HABITS, COUNTDOWNS } from "../lib/content";
 import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask } from "../lib/task-utils.jsx";
 
+const PILLARS = [
+  {
+    key: "stability",
+    icon: "🏠",
+    label: "Stability",
+    question: "Did you take one step toward home, visa, or banking today?",
+    color: "#c85a2a",
+  },
+  {
+    key: "career",
+    icon: "💼",
+    label: "Career",
+    question: "Did you apply, email someone, or work on your CV today?",
+    color: "#c87820",
+  },
+  {
+    key: "mind",
+    icon: "📚",
+    label: "Mind & Exams",
+    question: "Did you study or practice German for at least 20 minutes?",
+    color: "#3a8a58",
+  },
+];
+
+function DailyWin() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const storageKey = `daily_wins_${todayStr}`;
+
+  const [checked, setChecked] = useState(() => {
+    try {
+      const val = localStorage.getItem(storageKey);
+      return val ? JSON.parse(val) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(checked));
+    } catch {}
+  }, [checked, storageKey]);
+
+  function toggle(key) {
+    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  function getStreak(pillarKey) {
+    let streak = 0;
+    for (let i = 1; i <= 365; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      try {
+        const val = localStorage.getItem(`daily_wins_${dateStr}`);
+        if (val) {
+          const data = JSON.parse(val);
+          if (data[pillarKey]) { streak++; continue; }
+        }
+      } catch {}
+      break;
+    }
+    return streak;
+  }
+
+  const allDone = PILLARS.every((p) => checked[p.key]);
+
+  return (
+    <div className="daily-win panel">
+      <div className="daily-win-head">
+        <h2 className="panel-title">Today&apos;s wins</h2>
+        <p className="daily-win-sub">Three actions. One per pillar. That&apos;s a good day.</p>
+      </div>
+      <div className="daily-win-pillars">
+        {PILLARS.map((pillar) => {
+          const isChecked = !!checked[pillar.key];
+          const streak = getStreak(pillar.key);
+          return (
+            <div
+              key={pillar.key}
+              className={`pillar-card${isChecked ? " checked" : ""}`}
+              style={{ "--pillar-color": pillar.color }}
+              onClick={() => toggle(pillar.key)}
+            >
+              <div className="pillar-top">
+                <div className="pillar-icon-label">
+                  <span className="pillar-icon">{pillar.icon}</span>
+                  <span className="pillar-label">{pillar.label}</span>
+                </div>
+                <div className="pillar-check">{isChecked ? "✓" : ""}</div>
+              </div>
+              <p className="pillar-question">{pillar.question}</p>
+              <div className="pillar-footer">
+                <span className="pillar-streak">
+                  {isChecked && streak > 0
+                    ? `${streak + 1}d streak`
+                    : streak > 0
+                    ? `${streak}d streak`
+                    : "start today"}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {allDone && <p className="daily-win-full">Today&apos;s a full win.</p>}
+    </div>
+  );
+}
+
 const LEVELS = [
   { key: "urgent", label: "Urgent", blurb: "do now" },
   { key: "important", label: "Important", blurb: "matters a lot" },
@@ -66,6 +176,9 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDow
           <>
             <div className="task-top">
               <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(task.text)}</span>
+              {!isDone && task.text.toLowerCase().includes("commerzbank") && task.text.toLowerCase().includes("photot") && (
+                <span className="keystone-badge">🔑 Unblocks most</span>
+              )}
               {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
             </div>
             {!isDone && (
@@ -391,6 +504,7 @@ function CountdownPanel() {
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
+  const [celebrationMsg, setCelebrationMsg] = useState(null);
   const [input, setInput] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState("todo");
   const [expandedGroups, setExpandedGroups] = useState({});
@@ -572,6 +686,18 @@ export default function Home() {
       completed_at: nowDone ? new Date().toISOString() : null,
     };
     setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, ...update } : x)));
+    if (nowDone) {
+      const msgs = [
+        "That's one less thing between you and your future.",
+        "Done. Keep that energy.",
+        "You showed up. That matters.",
+        "One step closer, Shubham.",
+        "The version of you that finishes things — that's who you are.",
+        "Progress. Real, actual progress.",
+      ];
+      setCelebrationMsg(msgs[Math.floor(Math.random() * msgs.length)]);
+      setTimeout(() => setCelebrationMsg(null), 3000);
+    }
     const { error } = await supabase.from("tasks").update(update).eq("id", task.id);
     if (error) {
       console.error("Failed to update task:", error.message);
@@ -645,15 +771,15 @@ export default function Home() {
   const hour = new Date().getHours();
   const greetingLine = (() => {
     if (doneToday === 0) {
-      if (hour < 10) return "Morning. One task. That's all it takes to start.";
-      if (hour < 14) return "Your first win today is one task away. Pick it.";
-      if (hour < 19) return "The afternoon is yours. Do one thing that matters.";
-      return "Still time tonight. One small step forward.";
+      if (hour < 10) return "You are someone who builds their future. Start with one task.";
+      if (hour < 14) return "Every task done today is proof of who you're becoming.";
+      if (hour < 19) return "The person you want to be does the hard thing first.";
+      return "Even one task tonight means tomorrow starts ahead.";
     }
-    if (doneToday === 1) return "One done. The hardest one was starting. Keep going.";
-    if (doneToday === 2) return "Two done. You're building real momentum right now.";
-    if (doneToday >= 3 && doneToday < 6) return `${doneToday} tasks down today. This is what discipline looks like.`;
-    return `${doneToday} tasks today. You're unstoppable when you show up.`;
+    if (doneToday === 1) return "You started. That's the hardest part — and you did it.";
+    if (doneToday === 2) return "Two wins. You are building momentum that compounds.";
+    if (doneToday >= 3 && doneToday < 6) return `${doneToday} done. Identity confirmed: you are someone who shows up.`;
+    return `${doneToday} tasks. This is the version of you that wins.`;
   })();
 
   // Encouragement message in stats
@@ -715,6 +841,8 @@ export default function Home() {
           <span className="stat-streak-msg">{streakMsg}</span>
         </div>
       </div>
+
+      <DailyWin />
 
       <div className="dashboard-grid">
         <aside className="panel photos-aside">
@@ -923,6 +1051,12 @@ export default function Home() {
       </section>
 
       <footer>Visualize daily · act today · syncs across all your devices</footer>
+
+      {celebrationMsg && (
+        <div className="celebration-toast">
+          {celebrationMsg}
+        </div>
+      )}
 
       {drag && (
         <div

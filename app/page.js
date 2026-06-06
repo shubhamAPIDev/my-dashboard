@@ -791,7 +791,11 @@ export default function Home() {
 
   // Top focus task — #1 urgent, or #1 important
   const urgentTasks = sortedActive.filter(t => (t.priority || "todo") === "urgent");
-  const focusTask = urgentTasks[0] || sortedActive.filter(t => (t.priority || "todo") === "important")[0] || null;
+  // Focus task: earliest due_date wins; tasks starting with "After" are blocked/conditional — skip them
+  const actionableUrgent = urgentTasks.filter(t => !t.text.trim().toLowerCase().startsWith("after"));
+  const withDue = actionableUrgent.filter(t => t.due_date).sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+  const withoutDue = actionableUrgent.filter(t => !t.due_date);
+  const focusTask = withDue[0] || withoutDue[0] || sortedActive.filter(t => (t.priority || "todo") === "important")[0] || null;
 
   return (
     <div className="wrap" style={drag ? { userSelect: "none" } : undefined}>

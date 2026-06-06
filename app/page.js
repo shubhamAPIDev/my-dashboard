@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS } from "../lib/content";
 import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask } from "../lib/task-utils.jsx";
@@ -22,21 +22,14 @@ function fmt(d) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onDragStart, onDragEnd, isDragging }) {
+function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDownHandle, isDragging }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
   const isDone = task.status === "done";
   const currentPriority = task.priority || "todo";
 
-  function startEdit() {
-    setDraft(task.text);
-    setEditing(true);
-  }
-
-  function cancelEdit() {
-    setDraft(task.text);
-    setEditing(false);
-  }
+  function startEdit() { setDraft(task.text); setEditing(true); }
+  function cancelEdit() { setDraft(task.text); setEditing(false); }
 
   async function saveEdit() {
     const text = draft.trim();
@@ -46,36 +39,24 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onDragStart,
   }
 
   function onKeyDown(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      saveEdit();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(); }
     if (e.key === "Escape") cancelEdit();
   }
 
   return (
-    <div
-      className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}`}
-      draggable={!isDone && !editing}
-      onDragStart={(e) => {
-        e.dataTransfer.setData("taskId", task.id);
-        e.dataTransfer.effectAllowed = "move";
-        onDragStart(task.id);
-      }}
-      onDragEnd={onDragEnd}
-    >
-      <div className="drag-handle" title="Drag to change priority">⠿</div>
+    <div className={`task ${currentPriority}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}`}>
+      {!isDone && !editing && (
+        <div
+          className="drag-handle"
+          title="Drag up/down to change priority"
+          onPointerDown={(e) => onPointerDownHandle(e, task)}
+        >⠿</div>
+      )}
       <div className={`checkbox${isDone ? " checked" : ""}`} onClick={() => !editing && onToggle(task)} />
       <div className="task-body">
         {editing ? (
           <div className="task-edit">
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={onKeyDown}
-              autoFocus
-              rows={3}
-            />
+            <textarea value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={onKeyDown} autoFocus rows={3} />
             <div className="edit-actions">
               <button type="button" className="edit-save" onClick={saveEdit}>Save</button>
               <button type="button" className="edit-cancel" onClick={cancelEdit}>Cancel</button>
@@ -90,12 +71,9 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onDragStart,
             {!isDone && (
               <div className="task-prio">
                 {LEVELS.map((l) => (
-                  <button
-                    key={l.key}
-                    type="button"
+                  <button key={l.key} type="button"
                     className={`task-prio-chip ${l.key} ${currentPriority === l.key ? "on" : ""}`}
-                    onClick={() => onSetPriority(task, l.key)}
-                  >
+                    onClick={() => onSetPriority(task, l.key)}>
                     {l.label}
                   </button>
                 ))}
@@ -106,7 +84,7 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onDragStart,
       </div>
       {!editing && (
         <div className="task-actions">
-          <button className="edit" title="Edit task" onClick={startEdit}>&#9998;</button>
+          <button className="edit" title="Edit" onClick={startEdit}>&#9998;</button>
           <button className="del" title="Delete" onClick={() => onDelete(task)}>&#10005;</button>
         </div>
       )}
@@ -123,8 +101,41 @@ export default function Home() {
   const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
-  const [draggingId, setDraggingId] = useState(null);
-  const [dragOverLevel, setDragOverLevel] = useState(null);
+  const [drag, setDrag] = useState(null); // { task, x, y, targetLevel }
+  const groupRefs = useRef({});            // level key → DOM element
+
+  // Pointer-based drag — attached to window while dragging
+  useEffect(() => {
+    if (!drag) return;
+
+    function onMove(e) {
+      const y = e.clientY ?? e.touches?.[0]?.clientY;
+      const x = e.clientX ?? e.touches?.[0]?.clientX;
+      let targetLevel = drag.targetLevel;
+      for (const [key, el] of Object.entries(groupRefs.current)) {
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (y >= r.top && y <= r.bottom) { targetLevel = key; break; }
+      }
+      setDrag((d) => d ? { ...d, x, y, targetLevel } : null);
+    }
+
+    function onUp() {
+      setDrag((d) => {
+        if (d && d.targetLevel !== (d.task.priority || "todo")) {
+          setTaskPriority(d.task, d.targetLevel);
+        }
+        return null;
+      });
+    }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [drag?.task?.id]);
 
   async function loadTasks() {
     const { data, error } = await supabase
@@ -220,6 +231,11 @@ export default function Home() {
     }
   }
 
+  function startDrag(e, task) {
+    e.preventDefault();
+    setDrag({ task, x: e.clientX, y: e.clientY, targetLevel: task.priority || "todo" });
+  }
+
   const active = tasks.filter((t) => t.status !== "done");
   const done = tasks
     .filter((t) => t.status === "done")
@@ -228,7 +244,7 @@ export default function Home() {
   const focusTasks = active.filter(isFocusTask).sort(sortByDue).slice(0, 5);
 
   return (
-    <div className="wrap">
+    <div className="wrap" style={drag ? { userSelect: "none" } : undefined}>
       <header className="masthead">
         <div className="masthead-left">
           <span className="eyebrow">Personal Dashboard</span>
@@ -316,27 +332,21 @@ export default function Home() {
                 const group = active
                   .filter((t) => (t.priority || "todo") === level.key)
                   .sort(sortByDue);
-                const isOver = dragOverLevel === level.key;
+                const isTarget = drag?.targetLevel === level.key;
+                const isDraggingAny = !!drag;
                 return (
                   <div
-                    className={`prio-group${isOver ? " drop-over" : ""}${draggingId ? " drop-zone" : ""}`}
                     key={level.key}
-                    onDragOver={(e) => { e.preventDefault(); setDragOverLevel(level.key); }}
-                    onDragLeave={() => setDragOverLevel(null)}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const id = parseInt(e.dataTransfer.getData("taskId"), 10);
-                      const task = tasks.find((t) => t.id === id);
-                      if (task) setTaskPriority(task, level.key);
-                      setDraggingId(null);
-                      setDragOverLevel(null);
-                    }}
+                    ref={(el) => { groupRefs.current[level.key] = el; }}
+                    className={`prio-group${isDraggingAny ? " drag-active" : ""}${isTarget ? " drop-over" : ""}`}
                   >
-                    <div className={`group-head ${level.key}${isOver ? " over" : ""}`}>
+                    <div className={`group-head ${level.key}${isTarget ? " over" : ""}`}>
                       <span className="dot" />
                       {level.label}
                       <span className="group-count">{group.length}</span>
-                      {isOver && draggingId && <span className="drop-hint">drop here</span>}
+                      {isTarget && drag && drag.task.priority !== level.key && (
+                        <span className="drop-hint">→ move here</span>
+                      )}
                     </div>
                     {group.map((task) => (
                       <TaskRow
@@ -346,13 +356,14 @@ export default function Home() {
                         onSetPriority={setTaskPriority}
                         onDelete={deleteTask}
                         onEdit={editTask}
-                        onDragStart={setDraggingId}
-                        onDragEnd={() => { setDraggingId(null); setDragOverLevel(null); }}
-                        isDragging={draggingId === task.id}
+                        onPointerDownHandle={startDrag}
+                        isDragging={drag?.task.id === task.id}
                       />
                     ))}
-                    {group.length === 0 && draggingId && (
-                      <div className="drop-empty-hint">Drop here to mark {level.label.toLowerCase()}</div>
+                    {group.length === 0 && (
+                      <div className={`drop-empty-hint${isTarget && drag ? " active" : ""}`}>
+                        {isTarget && drag ? `Release to mark ${level.label.toLowerCase()}` : `No ${level.label.toLowerCase()} tasks`}
+                      </div>
                     )}
                   </div>
                 );
@@ -378,8 +389,7 @@ export default function Home() {
                       onSetPriority={setTaskPriority}
                       onDelete={deleteTask}
                       onEdit={editTask}
-                      onDragStart={() => {}}
-                      onDragEnd={() => {}}
+                      onPointerDownHandle={() => {}}
                       isDragging={false}
                     />
                   ))}
@@ -437,6 +447,16 @@ export default function Home() {
       </section>
 
       <footer>Visualize daily · act today · syncs across all your devices</footer>
+
+      {drag && (
+        <div
+          className={`drag-preview priority-${drag.targetLevel}`}
+          style={{ top: drag.y - 18, left: drag.x - 16 }}
+        >
+          <span className="drag-preview-label">{LEVELS.find(l => l.key === drag.targetLevel)?.label}</span>
+          <span className="drag-preview-text">{drag.task.text.slice(0, 48)}{drag.task.text.length > 48 ? "…" : ""}</span>
+        </div>
+      )}
     </div>
   );
 }

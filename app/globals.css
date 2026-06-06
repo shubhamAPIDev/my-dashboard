@@ -377,17 +377,16 @@ body {
 
 .prio-group:last-child { margin-bottom: 0; }
 
-.prio-group.drop-zone { cursor: copy; }
+.prio-group.drag-active {
+  border-radius: var(--radius-sm);
+  transition: background 0.1s, box-shadow 0.1s;
+  min-height: 52px;
+}
 
 .prio-group.drop-over {
   background: rgba(200,90,42,0.04);
   box-shadow: inset 0 0 0 2px var(--brand-light);
-  border-radius: var(--radius-sm);
 }
-
-.prio-group.drop-over.urgent-zone   { box-shadow: inset 0 0 0 2px var(--urgent); }
-.prio-group.drop-over.important-zone { box-shadow: inset 0 0 0 2px var(--important); }
-.prio-group.drop-over.todo-zone     { box-shadow: inset 0 0 0 2px var(--todo); }
 
 .group-head {
   display: flex;
@@ -429,14 +428,21 @@ body {
 }
 
 .drop-empty-hint {
-  padding: 10px 12px;
-  font-size: 12px;
+  padding: 8px 12px;
+  font-size: 11.5px;
   color: var(--ink-soft);
   font-style: italic;
-  text-align: center;
-  border: 1.5px dashed var(--line);
   border-radius: var(--radius-xs);
-  margin: 4px 0;
+  margin: 2px 0;
+  transition: all 0.12s;
+}
+
+.drop-empty-hint.active {
+  background: var(--brand-soft);
+  border: 1.5px dashed var(--brand-light);
+  color: var(--brand-dark);
+  font-style: normal;
+  font-weight: 500;
 }
 
 /* task rows */
@@ -945,6 +951,46 @@ footer {
   color: var(--ink-soft);
   letter-spacing: 0.06em;
   text-align: center;
+}
+
+/* ── drag preview ──────────────────────────────── */
+.drag-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-lg);
+  max-width: 260px;
+  transform: rotate(1.5deg);
+  opacity: 0.95;
+}
+
+.drag-preview.priority-urgent   { border-color: var(--urgent);    border-left-width: 3px; }
+.drag-preview.priority-important { border-color: var(--important); border-left-width: 3px; }
+.drag-preview.priority-todo     { border-color: var(--todo);      border-left-width: 3px; }
+
+.drag-preview-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.drag-preview.priority-urgent   .drag-preview-label { color: var(--urgent); }
+.drag-preview.priority-important .drag-preview-label { color: var(--important); }
+.drag-preview.priority-todo     .drag-preview-label { color: var(--todo); }
+
+.drag-preview-text {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.4;
 }
 
 /* ── animations ────────────────────────────────── */

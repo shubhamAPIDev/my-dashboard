@@ -232,10 +232,11 @@ export default function Home() {
       </div>
 
       {/* ---------- MANIFESTATION ---------- */}
-      <section className="panel manifest-panel">
+      <section className="panel manifest-panel" id="visualize">
         <div className="manifest-head">
-          <div>
-            <h2 className="panel-title">{MANIFESTATION.title}</h2>
+          <div className="manifest-copy">
+            <span className="manifest-eyebrow">Scroll down &middot; see your future</span>
+            <h2 className="manifest-title">{MANIFESTATION.title}</h2>
             <p className="manifest-intro">{MANIFESTATION.intro}</p>
           </div>
           <div className="manifest-steps">
@@ -252,13 +253,13 @@ export default function Home() {
         </div>
         <div className="vision-grid">
           {VISION.map((v, i) => (
-            <div className="vision-card" key={i}>
-              <img src={v.image} alt={v.label} />
+            <article className="vision-card" key={i}>
+              <img src={v.image} alt={v.label} loading="lazy" />
               <div className="vision-caption">
                 <div className="label">{v.label}</div>
                 <p className="affirmation">{v.affirmation}</p>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>

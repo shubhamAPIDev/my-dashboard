@@ -491,39 +491,61 @@ body {
 /* ---------- manifestation ---------- */
 .manifest-panel {
   margin-bottom: 16px;
+  margin-top: 8px;
+  padding: 36px 32px 40px;
+  scroll-margin-top: 24px;
   animation: rise 0.8s ease both;
 }
 
 .manifest-head {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 20px;
+  gap: 28px;
   align-items: start;
-  margin-bottom: 18px;
-  padding-bottom: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
   border-bottom: 1px solid var(--line);
 }
 
+.manifest-eyebrow {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.manifest-title {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 36px);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
 .manifest-intro {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
   color: var(--ink-soft);
-  margin-top: 6px;
-  max-width: 50ch;
+  margin-top: 12px;
+  max-width: 56ch;
 }
 
 .manifest-steps {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 220px;
+  gap: 10px;
+  min-width: 240px;
 }
 
 .manifest-step {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 8px 10px;
+  padding: 12px 14px;
   background: var(--brand-soft);
   border-radius: var(--radius-sm);
   border: 1px solid var(--brand-muted);
@@ -531,13 +553,13 @@ body {
 
 .manifest-step .step-num {
   font-family: "Spline Sans Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   color: #fff;
   background: var(--brand);
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -546,38 +568,45 @@ body {
 .manifest-step strong {
   display: block;
   font-family: "Spline Sans Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--brand-dark);
-  margin-bottom: 1px;
+  margin-bottom: 3px;
 }
 
 .manifest-step span:last-child {
   color: var(--ink-soft);
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .vision-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+/* centre a lone card on the last row */
+.vision-grid .vision-card:last-child:nth-child(3n + 1):last-child {
+  grid-column: 2;
 }
 
 .vision-card {
   position: relative;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   overflow: hidden;
-  aspect-ratio: 3 / 4;
-  border: 1px solid var(--line);
-  box-shadow: 0 3px 12px var(--shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  aspect-ratio: 4 / 5;
+  min-height: 360px;
+  border: 2px solid var(--brand-muted);
+  box-shadow: 0 8px 28px var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background: var(--ink);
 }
 
 .vision-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(58, 47, 42, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(58, 47, 42, 0.14);
 }
 
 .vision-card img {
@@ -585,6 +614,7 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+  image-rendering: auto;
 }
 
 .vision-caption {
@@ -592,41 +622,27 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 28px 10px 10px;
-  background: linear-gradient(transparent, rgba(58, 47, 42, 0.88));
+  padding: 48px 18px 18px;
+  background: linear-gradient(transparent, rgba(58, 47, 42, 0.75) 20%, rgba(58, 47, 42, 0.94));
   color: #fff;
 }
 
 .vision-card .label {
   font-family: "Fraunces", serif;
-  font-size: 12px;
+  font-size: 17px;
   font-weight: 500;
-  line-height: 1.25;
-  margin-bottom: 4px;
+  line-height: 1.3;
+  margin-bottom: 8px;
 }
 
 .vision-card .affirmation {
-  font-size: 10px;
+  font-family: "Newsreader", serif;
+  font-size: 14px;
   font-style: italic;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.9);
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: opacity 0.25s ease, max-height 0.25s ease;
-}
-
-.vision-card:hover .affirmation,
-.vision-card:focus-within .affirmation {
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.95);
   opacity: 1;
-  max-height: 72px;
-}
-
-@media (hover: none) {
-  .vision-card .affirmation {
-    opacity: 1;
-    max-height: none;
-  }
+  max-height: none;
 }
 
 /* ---------- responsive ---------- */
@@ -654,6 +670,15 @@ body {
   .task-list {
     min-height: 360px;
   }
+  .vision-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .vision-grid .vision-card:last-child:nth-child(3n + 1):last-child {
+    grid-column: auto;
+  }
+  .vision-card {
+    min-height: 300px;
+  }
 }
 
 @media (max-width: 720px) {
@@ -679,6 +704,20 @@ body {
   }
   .task-list { max-height: none; min-height: 320px; }
   .tasks-panel { min-height: auto; padding: 22px; }
+  .vision-grid {
+    grid-template-columns: 1fr;
+  }
+  .vision-card {
+    min-height: 380px;
+    aspect-ratio: auto;
+  }
+  .manifest-panel {
+    padding: 24px 20px 28px;
+  }
+  .manifest-head {
+    grid-template-columns: 1fr;
+    margin-bottom: 24px;
+  }
 }
 
 footer {

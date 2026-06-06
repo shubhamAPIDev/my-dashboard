@@ -337,6 +337,7 @@ export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState("todo");
+  const [expandedGroups, setExpandedGroups] = useState({});
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -576,7 +577,6 @@ export default function Home() {
   const doneToday = done.filter(t => t.completed_at?.slice(0, 10) === todayStr2).length;
   const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 6);
   const doneThisWeek = done.filter(t => t.completed_at && new Date(t.completed_at) >= weekAgo).length;
-  // streak: consecutive days (ending today) with at least 1 completion
   const doneDays = new Set(done.map(t => t.completed_at?.slice(0, 10)).filter(Boolean));
   let streak = 0;
   for (let i = 0; ; i++) {
@@ -584,6 +584,32 @@ export default function Home() {
     if (doneDays.has(d.toISOString().slice(0, 10))) streak++;
     else break;
   }
+
+  // Dynamic greeting line based on time + progress
+  const hour = new Date().getHours();
+  const greetingLine = (() => {
+    if (doneToday === 0) {
+      if (hour < 10) return "Morning. One task. That's all it takes to start.";
+      if (hour < 14) return "Your first win today is one task away. Pick it.";
+      if (hour < 19) return "The afternoon is yours. Do one thing that matters.";
+      return "Still time tonight. One small step forward.";
+    }
+    if (doneToday === 1) return "One done. The hardest one was starting. Keep going.";
+    if (doneToday === 2) return "Two done. You're building real momentum right now.";
+    if (doneToday >= 3 && doneToday < 6) return `${doneToday} tasks down today. This is what discipline looks like.`;
+    return `${doneToday} tasks today. You're unstoppable when you show up.`;
+  })();
+
+  // Encouragement message in stats
+  const streakMsg = streak === 0
+    ? "Start today — one task builds a streak."
+    : streak === 1 ? "Day 1. Keep this going tomorrow."
+    : streak < 7 ? `${streak} days in a row. Don't break the chain.`
+    : `${streak} days straight. You're becoming someone different.`;
+
+  // Top focus task — #1 urgent, or #1 important
+  const urgentTasks = sortedActive.filter(t => (t.priority || "todo") === "urgent");
+  const focusTask = urgentTasks[0] || sortedActive.filter(t => (t.priority || "todo") === "important")[0] || null;
 
   return (
     <div className="wrap" style={drag ? { userSelect: "none" } : undefined}>
@@ -593,6 +619,7 @@ export default function Home() {
           <h1 className="title">
             Hello, <em>{PROFILE.name}</em>
           </h1>
+          <p className="masthead-motivation">{greetingLine}</p>
         </div>
         <div className="datetime">
           <span className="datestamp">{now.date}</span>
@@ -606,8 +633,8 @@ export default function Home() {
           <span className="stat-label">total done</span>
         </div>
         <div className="stat-divider" />
-        <div className="stat-item">
-          <span className="stat-num">{doneToday}</span>
+        <div className={`stat-item${doneToday > 0 ? " stat-hot" : ""}`}>
+          <span className="stat-num">{doneToday > 0 ? doneToday : "—"}</span>
           <span className="stat-label">today</span>
         </div>
         <div className="stat-divider" />
@@ -616,23 +643,30 @@ export default function Home() {
           <span className="stat-label">this week</span>
         </div>
         <div className="stat-divider" />
-        <div className={`stat-item${streak >= 3 ? " stat-hot" : ""}`}>
+        <div className={`stat-item${streak >= 1 ? " stat-hot" : ""}`}>
           <span className="stat-num">{streak > 0 ? `${streak}d` : "—"}</span>
           <span className="stat-label">{streak >= 3 ? "🔥 streak" : "streak"}</span>
         </div>
         <div className="stat-divider" />
         <div className="stat-item stat-progress">
           <div className="stat-bar-wrap">
-            <div
-              className="stat-bar-fill"
-              style={{ width: `${done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}%` }}
-            />
+            <div className="stat-bar-fill" style={{ width: `${done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}%` }} />
           </div>
-          <span className="stat-label">
-            {done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}% complete
-          </span>
+          <span className="stat-label">{done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}% complete</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item stat-msg">
+          <span className="stat-streak-msg">{streakMsg}</span>
         </div>
       </div>
+
+      {focusTask && (
+        <div className="focus-now-card">
+          <div className="focus-now-label">Right now, do this</div>
+          <div className="focus-now-task">{focusTask.text.split(".")[0]}{focusTask.text.includes(".") ? "." : ""}</div>
+          <button className="focus-now-done" onClick={() => toggleTask(focusTask)}>Mark done ✓</button>
+        </div>
+      )}
 
       <div className="dashboard-grid">
         <aside className="panel photos-aside">
@@ -702,12 +736,20 @@ export default function Home() {
             {loading ? (
               <p className="loading">Loading your tasks…</p>
             ) : active.length === 0 ? (
-              <p className="empty">Nothing open. Enjoy the quiet, or add something.</p>
+              <div className="empty-done">
+                <div className="empty-done-icon">✓</div>
+                <p className="empty-done-title">All clear, Shubham.</p>
+                <p className="empty-done-sub">Every task done. That&apos;s a rare feeling — enjoy it.</p>
+              </div>
             ) : (
               LEVELS.map((level) => {
                 const group = sortedActive.filter((t) => (t.priority || "todo") === level.key);
                 const isTarget = drag?.targetLevel === level.key;
                 const isDraggingAny = !!drag;
+                const VISIBLE_LIMIT = level.key === "urgent" ? 3 : group.length;
+                const expanded = !!expandedGroups[level.key];
+                const visibleGroup = expanded ? group : group.slice(0, VISIBLE_LIMIT);
+                const hiddenCount = group.length - VISIBLE_LIMIT;
                 return (
                   <div
                     key={level.key}
@@ -722,7 +764,7 @@ export default function Home() {
                         <span className="drop-hint">→ move here</span>
                       )}
                     </div>
-                    {group.map((task) => (
+                    {visibleGroup.map((task) => (
                       <TaskRow
                         key={task.id}
                         task={task}
@@ -740,6 +782,16 @@ export default function Home() {
                       <div className={`drop-empty-hint${isTarget && drag ? " active" : ""}`}>
                         {isTarget && drag ? `Release to mark ${level.label.toLowerCase()}` : `No ${level.label.toLowerCase()} tasks`}
                       </div>
+                    )}
+                    {!expanded && hiddenCount > 0 && (
+                      <button className="group-show-more" onClick={() => setExpandedGroups(p => ({ ...p, [level.key]: true }))}>
+                        + {hiddenCount} more urgent task{hiddenCount > 1 ? "s" : ""} — tap to see all
+                      </button>
+                    )}
+                    {expanded && hiddenCount > 0 && (
+                      <button className="group-show-more group-show-less" onClick={() => setExpandedGroups(p => ({ ...p, [level.key]: false }))}>
+                        Show fewer
+                      </button>
                     )}
                   </div>
                 );

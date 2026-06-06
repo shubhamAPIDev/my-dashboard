@@ -17,37 +17,81 @@ function DueBadge({ dueDate }) {
   return <span className={`due-badge ${meta.tone}`}>{meta.label}</span>;
 }
 
-function TaskRow({ task, onToggle, onPriority, onDelete }) {
+function TaskRow({ task, onToggle, onPriority, onDelete, onEdit }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(task.text);
   const isDone = task.status === "done";
-  const display = task.notes && !task.text.includes("@") ? `${task.text} ${task.notes}` : task.text;
+
+  function startEdit() {
+    setDraft(task.text);
+    setEditing(true);
+  }
+
+  function cancelEdit() {
+    setDraft(task.text);
+    setEditing(false);
+  }
+
+  async function saveEdit() {
+    const text = draft.trim();
+    if (!text) return;
+    if (text !== task.text) await onEdit(task, text);
+    setEditing(false);
+  }
+
+  function onKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      saveEdit();
+    }
+    if (e.key === "Escape") cancelEdit();
+  }
 
   return (
-    <div className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}`}>
-      <div className={`checkbox${isDone ? " checked" : ""}`} onClick={() => onToggle(task)} />
+    <div className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}`}>
+      <div className={`checkbox${isDone ? " checked" : ""}`} onClick={() => !editing && onToggle(task)} />
       <div className="task-body">
-        <div className="task-top">
-          <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(display)}</span>
-          {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
-        </div>
+        {editing ? (
+          <div className="task-edit">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={onKeyDown}
+              autoFocus
+              rows={3}
+            />
+            <div className="edit-actions">
+              <button type="button" className="edit-save" onClick={saveEdit}>
+                Save
+              </button>
+              <button type="button" className="edit-cancel" onClick={cancelEdit}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="task-top">
+            <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(task.text)}</span>
+            {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
+          </div>
+        )}
       </div>
-      {!isDone && (
+      {!editing && (
         <div className="task-actions">
-          <button className="flag" title="Change priority" onClick={() => onPriority(task)}>
-            &#8645;
+          <button className="edit" title="Edit task" onClick={startEdit}>
+            &#9998;
           </button>
+          {!isDone && (
+            <button className="flag" title="Change priority" onClick={() => onPriority(task)}>
+              &#8645;
+            </button>
+          )}
           <button className="del" title="Delete" onClick={() => onDelete(task)}>
             &#10005;
           </button>
         </div>
       )}
-      {isDone && (
-        <>
-          <span className="task-meta">{fmt(task.completed_at)}</span>
-          <button className="del" onClick={() => onDelete(task)}>
-            &#10005;
-          </button>
-        </>
-      )}
+      {isDone && !editing && <span className="task-meta">{fmt(task.completed_at)}</span>}
     </div>
   );
 }
@@ -133,6 +177,11 @@ export default function Home() {
   async function deleteTask(task) {
     setTasks((t) => t.filter((x) => x.id !== task.id));
     await supabase.from("tasks").delete().eq("id", task.id);
+  }
+
+  async function editTask(task, text) {
+    setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, text } : x)));
+    await supabase.from("tasks").update({ text }).eq("id", task.id);
   }
 
   const active = tasks.filter((t) => t.status !== "done");
@@ -244,6 +293,7 @@ export default function Home() {
                         onToggle={toggleTask}
                         onPriority={changePriority}
                         onDelete={deleteTask}
+                        onEdit={editTask}
                       />
                     ))}
                   </div>
@@ -269,6 +319,7 @@ export default function Home() {
                       onToggle={toggleTask}
                       onPriority={changePriority}
                       onDelete={deleteTask}
+                      onEdit={editTask}
                     />
                   ))}
               </div>

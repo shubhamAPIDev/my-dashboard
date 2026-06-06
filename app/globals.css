@@ -623,7 +623,61 @@ body {
   align-self: center;
 }
 
-.del, .flag {
+.task.is-editing {
+  background: var(--brand-soft);
+  border-left-width: 3px;
+}
+
+.task-edit textarea {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--brand-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-family: "Newsreader", serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 98, 42, 0.1);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.edit-save,
+.edit-cancel {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.edit-save {
+  background: var(--brand);
+  color: #fff;
+}
+
+.edit-save:hover { background: var(--brand-dark); }
+
+.edit-cancel {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+
+.edit-cancel:hover { color: var(--ink); }
+
+.del, .flag, .edit {
   background: none;
   border: none;
   color: var(--ink-soft);
@@ -637,8 +691,9 @@ body {
 }
 
 .task:hover .del,
-.task:hover .flag { opacity: 0.75; }
-.del:hover, .flag:hover { color: var(--brand); opacity: 1; }
+.task:hover .flag,
+.task:hover .edit { opacity: 0.75; }
+.del:hover, .flag:hover, .edit:hover { color: var(--brand); opacity: 1; }
 
 .empty, .loading {
   color: var(--ink-soft);

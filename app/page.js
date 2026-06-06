@@ -17,10 +17,11 @@ function DueBadge({ dueDate }) {
   return <span className={`due-badge ${meta.tone}`}>{meta.label}</span>;
 }
 
-function TaskRow({ task, onToggle, onPriority, onDelete, onEdit }) {
+function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
   const isDone = task.status === "done";
+  const currentPriority = task.priority || "todo";
 
   function startEdit() {
     setDraft(task.text);
@@ -70,10 +71,26 @@ function TaskRow({ task, onToggle, onPriority, onDelete, onEdit }) {
             </div>
           </div>
         ) : (
-          <div className="task-top">
-            <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(task.text)}</span>
-            {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
-          </div>
+          <>
+            <div className="task-top">
+              <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(task.text)}</span>
+              {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
+            </div>
+            {!isDone && (
+              <div className="task-prio">
+                {LEVELS.map((l) => (
+                  <button
+                    key={l.key}
+                    type="button"
+                    className={`task-prio-chip ${l.key} ${currentPriority === l.key ? "on" : ""}`}
+                    onClick={() => onSetPriority(task, l.key)}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
       {!editing && (
@@ -81,11 +98,6 @@ function TaskRow({ task, onToggle, onPriority, onDelete, onEdit }) {
           <button className="edit" title="Edit task" onClick={startEdit}>
             &#9998;
           </button>
-          {!isDone && (
-            <button className="flag" title="Change priority" onClick={() => onPriority(task)}>
-              &#8645;
-            </button>
-          )}
           <button className="del" title="Delete" onClick={() => onDelete(task)}>
             &#10005;
           </button>
@@ -101,15 +113,10 @@ function fmt(d) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function cyclePriority(p) {
-  const order = ["urgent", "important", "todo"];
-  return order[(order.indexOf(p) + 1) % order.length];
-}
-
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
-  const [priority, setPriority] = useState("urgent");
+  const [newTaskPriority, setNewTaskPriority] = useState("urgent");
   const [loading, setLoading] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
@@ -152,7 +159,7 @@ export default function Home() {
     setInput("");
     const { data, error } = await supabase
       .from("tasks")
-      .insert({ text, status: "active", priority })
+      .insert({ text, status: "active", priority: newTaskPriority })
       .select()
       .single();
     if (!error && data) setTasks((t) => [...t, data]);
@@ -168,8 +175,8 @@ export default function Home() {
     await supabase.from("tasks").update(update).eq("id", task.id);
   }
 
-  async function changePriority(task) {
-    const level = cyclePriority(task.priority || "todo");
+  async function setTaskPriority(task, level) {
+    if ((task.priority || "todo") === level) return;
     setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, priority: level } : x)));
     await supabase.from("tasks").update({ priority: level }).eq("id", task.id);
   }
@@ -259,8 +266,8 @@ export default function Home() {
             {LEVELS.map((l) => (
               <button
                 key={l.key}
-                className={`prio-chip ${l.key} ${priority === l.key ? "on" : ""}`}
-                onClick={() => setPriority(l.key)}
+                className={`prio-chip ${l.key} ${newTaskPriority === l.key ? "on" : ""}`}
+                onClick={() => setNewTaskPriority(l.key)}
               >
                 {l.label}
               </button>
@@ -291,7 +298,7 @@ export default function Home() {
                         key={task.id}
                         task={task}
                         onToggle={toggleTask}
-                        onPriority={changePriority}
+                        onSetPriority={setTaskPriority}
                         onDelete={deleteTask}
                         onEdit={editTask}
                       />
@@ -317,7 +324,7 @@ export default function Home() {
                       key={task.id}
                       task={task}
                       onToggle={toggleTask}
-                      onPriority={changePriority}
+                      onSetPriority={setTaskPriority}
                       onDelete={deleteTask}
                       onEdit={editTask}
                     />

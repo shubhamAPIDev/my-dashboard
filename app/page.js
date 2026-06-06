@@ -571,6 +571,20 @@ export default function Home() {
 
   const focusTasks = sortedActive.filter(isFocusTask).slice(0, 5);
 
+  // Stats calculations
+  const todayStr2 = new Date().toISOString().slice(0, 10);
+  const doneToday = done.filter(t => t.completed_at?.slice(0, 10) === todayStr2).length;
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 6);
+  const doneThisWeek = done.filter(t => t.completed_at && new Date(t.completed_at) >= weekAgo).length;
+  // streak: consecutive days (ending today) with at least 1 completion
+  const doneDays = new Set(done.map(t => t.completed_at?.slice(0, 10)).filter(Boolean));
+  let streak = 0;
+  for (let i = 0; ; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    if (doneDays.has(d.toISOString().slice(0, 10))) streak++;
+    else break;
+  }
+
   return (
     <div className="wrap" style={drag ? { userSelect: "none" } : undefined}>
       <header className="masthead">
@@ -585,6 +599,40 @@ export default function Home() {
           <span className="timestap">{now.time}</span>
         </div>
       </header>
+
+      <div className="stats-strip">
+        <div className="stat-item">
+          <span className="stat-num">{done.length}</span>
+          <span className="stat-label">total done</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item">
+          <span className="stat-num">{doneToday}</span>
+          <span className="stat-label">today</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item">
+          <span className="stat-num">{doneThisWeek}</span>
+          <span className="stat-label">this week</span>
+        </div>
+        <div className="stat-divider" />
+        <div className={`stat-item${streak >= 3 ? " stat-hot" : ""}`}>
+          <span className="stat-num">{streak > 0 ? `${streak}d` : "—"}</span>
+          <span className="stat-label">{streak >= 3 ? "🔥 streak" : "streak"}</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item stat-progress">
+          <div className="stat-bar-wrap">
+            <div
+              className="stat-bar-fill"
+              style={{ width: `${done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}%` }}
+            />
+          </div>
+          <span className="stat-label">
+            {done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}% complete
+          </span>
+        </div>
+      </div>
 
       <div className="dashboard-grid">
         <aside className="panel photos-aside">

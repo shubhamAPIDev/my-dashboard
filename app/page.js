@@ -31,6 +31,8 @@ function TaskRow({ task, onToggle, onPriority, onDelete, showStep }) {
   const [open, setOpen] = useState(false);
   const hasNotes = Boolean(task.notes);
   const isDone = task.status === "done";
+  const shortNote = hasNotes && task.notes.length <= 55;
+  const showNotes = hasNotes && (shortNote || open || isDone);
 
   return (
     <div className={`task ${task.priority || "todo"}${isDone ? " is-done" : ""}`}>
@@ -46,16 +48,12 @@ function TaskRow({ task, onToggle, onPriority, onDelete, showStep }) {
           <span className={`task-title${isDone ? " done" : ""}`}>{task.text}</span>
           {!isDone && task.due_date && <DueBadge dueDate={task.due_date} />}
         </div>
-        {hasNotes && (
-          <>
-            {!isDone && (
-              <button type="button" className="notes-toggle" onClick={() => setOpen(!open)}>
-                {open ? "Hide details" : "Show details"}
-              </button>
-            )}
-            {(open || isDone) && <p className="task-notes">{linkifyNotes(task.notes)}</p>}
-          </>
+        {hasNotes && !shortNote && !isDone && (
+          <button type="button" className="notes-toggle" onClick={() => setOpen(!open)}>
+            {open ? "Hide details" : "Show details"}
+          </button>
         )}
+        {showNotes && <p className="task-notes">{linkifyNotes(task.notes)}</p>}
       </div>
       {!isDone && (
         <div className="task-actions">

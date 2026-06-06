@@ -17,6 +17,11 @@ function DueBadge({ dueDate }) {
   return <span className={`due-badge ${meta.tone}`}>{meta.label}</span>;
 }
 
+function fmt(d) {
+  if (!d) return "";
+  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
 function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
@@ -108,18 +113,24 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit }) {
   );
 }
 
-function fmt(d) {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
-  const [newTaskPriority, setNewTaskPriority] = useState("urgent");
+  const [newTaskPriority, setNewTaskPriority] = useState("todo");
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
+
+  async function loadTasks() {
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("created_at", { ascending: true });
+    if (error) console.error("Failed to load tasks:", error.message);
+    else if (data) setTasks(data);
+    setLoading(false);
+  }
 
   useEffect(() => {
     function tick() {
@@ -144,25 +155,23 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  async function loadTasks() {
-    const { data, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .order("created_at", { ascending: true });
-    if (!error && data) setTasks(data);
-    setLoading(false);
-  }
-
   async function addTask() {
     const text = input.trim();
-    if (!text) return;
+    if (!text || adding) return;
+    setAdding(true);
     setInput("");
     const { data, error } = await supabase
       .from("tasks")
       .insert({ text, status: "active", priority: newTaskPriority })
       .select()
       .single();
-    if (!error && data) setTasks((t) => [...t, data]);
+    if (error) {
+      console.error("Failed to add task:", error.message);
+      setInput(text);
+    } else if (data) {
+      setTasks((t) => [...t, data]);
+    }
+    setAdding(false);
   }
 
   async function toggleTask(task) {
@@ -172,23 +181,39 @@ export default function Home() {
       completed_at: nowDone ? new Date().toISOString() : null,
     };
     setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, ...update } : x)));
-    await supabase.from("tasks").update(update).eq("id", task.id);
+    const { error } = await supabase.from("tasks").update(update).eq("id", task.id);
+    if (error) {
+      console.error("Failed to update task:", error.message);
+      setTasks((t) => t.map((x) => (x.id === task.id ? task : x)));
+    }
   }
 
   async function setTaskPriority(task, level) {
     if ((task.priority || "todo") === level) return;
     setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, priority: level } : x)));
-    await supabase.from("tasks").update({ priority: level }).eq("id", task.id);
+    const { error } = await supabase.from("tasks").update({ priority: level }).eq("id", task.id);
+    if (error) {
+      console.error("Failed to update priority:", error.message);
+      setTasks((t) => t.map((x) => (x.id === task.id ? task : x)));
+    }
   }
 
   async function deleteTask(task) {
     setTasks((t) => t.filter((x) => x.id !== task.id));
-    await supabase.from("tasks").delete().eq("id", task.id);
+    const { error } = await supabase.from("tasks").delete().eq("id", task.id);
+    if (error) {
+      console.error("Failed to delete task:", error.message);
+      setTasks((t) => [...t, task]);
+    }
   }
 
   async function editTask(task, text) {
     setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, text } : x)));
-    await supabase.from("tasks").update({ text }).eq("id", task.id);
+    const { error } = await supabase.from("tasks").update({ text }).eq("id", task.id);
+    if (error) {
+      console.error("Failed to edit task:", error.message);
+      setTasks((t) => t.map((x) => (x.id === task.id ? task : x)));
+    }
   }
 
   const active = tasks.filter((t) => t.status !== "done");
@@ -258,8 +283,11 @@ export default function Home() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addTask()}
               placeholder="What needs doing?"
+              disabled={adding}
             />
-            <button onClick={addTask}>Add</button>
+            <button onClick={addTask} disabled={adding}>
+              {adding ? "…" : "Add"}
+            </button>
           </div>
 
           <div className="prio-picker">

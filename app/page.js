@@ -478,26 +478,30 @@ function ExamBlock() {
   const daysToFirst = daysUntil(EXAMS[0].date);
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return (
-    <div className="exam-block">
-      <div className="exam-block-header">
-        <div className="exam-block-alarm">📚</div>
-        <div className="exam-block-hero">
-          <span className="exam-days-num">{daysToFirst}</span>
-          <span className="exam-days-label">days to first exam</span>
+    <div style={{background:"#140808",border:"1.5px solid #c0392b",borderRadius:14,padding:"20px 24px 16px",marginBottom:24}}>
+      {/* header row */}
+      <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:18,flexWrap:"wrap"}}>
+        <span style={{fontSize:28,flexShrink:0}}>📚</span>
+        <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+          <span style={{fontFamily:"var(--font-serif)",fontSize:52,fontWeight:400,color:"#e74c3c",lineHeight:1}}>{daysToFirst}</span>
+          <span style={{fontSize:13,color:"#bbb",textTransform:"uppercase",letterSpacing:".06em"}}>days to first exam</span>
         </div>
-        <p className="exam-block-stake">Pass all 5 → visa stays valid. No exceptions.</p>
+        <p style={{fontSize:12,color:"#e74c3c",fontStyle:"italic",margin:0,marginLeft:"auto",textAlign:"right",maxWidth:200,lineHeight:1.4}}>
+          Pass all 5 → visa stays valid.<br/>No exceptions.
+        </p>
       </div>
-      <div className="exam-list">
+      {/* exam list */}
+      <div style={{display:"flex",flexDirection:"column",gap:6}}>
         {EXAMS.map((e, i) => {
           const d = new Date(e.date + "T12:00:00");
           const days = daysUntil(e.date);
           return (
-            <div className="exam-row" key={i}>
-              <span className="exam-num">#{i + 1}</span>
-              <span className="exam-name">{e.name}</span>
-              <span className="exam-date-info">
-                {dayNames[d.getDay()]}, {d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                <span className="exam-days-badge">{days}d</span>
+            <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"rgba(255,255,255,.04)",borderRadius:8,borderLeft:"3px solid #c0392b"}}>
+              <span style={{fontSize:11,color:"#666",width:18,flexShrink:0}}>#{i+1}</span>
+              <span style={{fontSize:14,color:"#f0f0f0",fontWeight:500,flex:1}}>{e.name}</span>
+              <span style={{fontSize:12,color:"#999",display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                {dayNames[d.getDay()]}, {d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
+                <span style={{background:"rgba(192,57,43,.3)",color:"#e74c3c",fontSize:11,fontWeight:600,padding:"1px 7px",borderRadius:20}}>{days}d</span>
               </span>
             </div>
           );
@@ -513,18 +517,24 @@ function CountdownPanel() {
       <div className="panel-head">
         <h2 className="panel-title">Key dates</h2>
       </div>
-      <p className="panel-lead">Dates you cannot miss.</p>
       <div className="countdown-list">
         {COUNTDOWNS.map((c, i) => {
           const days = daysUntil(c.date);
-          const tone = days < 30 ? "urgent" : days < 90 ? "important" : "safe";
+          const isPast = days < 0;
+          const isHot = days >= 0 && days <= 7;
+          const isSoon = days > 7 && days <= 30;
+          const dotColor = isPast ? "#bbb" : isHot ? "#e74c3c" : isSoon ? "#c87820" : "#3a8a58";
           return (
-            <div key={i} className={`countdown-item ${tone}`}>
-              <div className="countdown-days">{days}</div>
-              <div className="countdown-info">
-                <div className="countdown-label">{c.label}</div>
-                <div className="countdown-date">
-                  {new Date(c.date + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            <div key={i} style={{display:"flex",alignItems:"center",gap:14,padding:"11px 0",borderBottom: i < COUNTDOWNS.length-1 ? "1px solid var(--border)" : "none"}}>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,minWidth:42}}>
+                <span style={{fontFamily:"var(--font-serif)",fontSize:28,fontWeight:400,color:dotColor,lineHeight:1}}>{isPast ? "—" : days}</span>
+                <span style={{fontSize:10,color:"#999",textTransform:"uppercase",letterSpacing:".04em"}}>{isPast ? "past" : "days"}</span>
+              </div>
+              <div style={{width:3,height:36,borderRadius:2,background:dotColor,flexShrink:0}} />
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:13,fontWeight:500,color: isPast ? "#aaa" : "var(--ink)",marginBottom:2,lineHeight:1.3}}>{c.label}</div>
+                <div style={{fontSize:11,color:"#999"}}>
+                  {new Date(c.date + "T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}
                 </div>
               </div>
             </div>

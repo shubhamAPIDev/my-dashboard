@@ -478,31 +478,31 @@ function ExamBlock() {
   const daysToFirst = daysUntil(EXAMS[0].date);
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return (
-    <div style={{background:"#140808",border:"1.5px solid #c0392b",borderRadius:14,padding:"20px 24px 16px",marginBottom:24}}>
+    <div style={{background:"#fff",border:"1px solid #ede5de",borderTop:"3px solid #d64040",borderRadius:14,padding:"20px 24px 16px",marginBottom:24,boxShadow:"0 4px 16px rgba(30,24,18,0.07)"}}>
       {/* header row */}
-      <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:18,flexWrap:"wrap"}}>
-        <span style={{fontSize:28,flexShrink:0}}>📚</span>
-        <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-          <span style={{fontFamily:"var(--font-serif)",fontSize:52,fontWeight:400,color:"#e74c3c",lineHeight:1}}>{daysToFirst}</span>
-          <span style={{fontSize:13,color:"#bbb",textTransform:"uppercase",letterSpacing:".06em"}}>days to first exam</span>
+      <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:16,flexWrap:"wrap"}}>
+        <div style={{display:"flex",alignItems:"baseline",gap:6}}>
+          <span style={{fontFamily:"Fraunces, serif",fontSize:48,fontWeight:400,color:"#d64040",lineHeight:1}}>{daysToFirst}</span>
+          <span style={{fontSize:12,color:"#9a8880",textTransform:"uppercase",letterSpacing:".07em",paddingBottom:4}}>days to<br/>first exam</span>
         </div>
-        <p style={{fontSize:12,color:"#e74c3c",fontStyle:"italic",margin:0,marginLeft:"auto",textAlign:"right",maxWidth:200,lineHeight:1.4}}>
-          Pass all 5 → visa stays valid.<br/>No exceptions.
-        </p>
+        <div style={{marginLeft:"auto",textAlign:"right"}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#d64040",textTransform:"uppercase",letterSpacing:".08em",marginBottom:2}}>⚠ Visa depends on this</div>
+          <div style={{fontSize:11,color:"#9a8880"}}>Pass all 5 to stay in Germany</div>
+        </div>
       </div>
       {/* exam list */}
-      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+      <div style={{display:"flex",flexDirection:"column",gap:4}}>
         {EXAMS.map((e, i) => {
           const d = new Date(e.date + "T12:00:00");
           const days = daysUntil(e.date);
           return (
-            <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"rgba(255,255,255,.04)",borderRadius:8,borderLeft:"3px solid #c0392b"}}>
-              <span style={{fontSize:11,color:"#666",width:18,flexShrink:0}}>#{i+1}</span>
-              <span style={{fontSize:14,color:"#f0f0f0",fontWeight:500,flex:1}}>{e.name}</span>
-              <span style={{fontSize:12,color:"#999",display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+            <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:"#faf8f5",borderRadius:8,borderLeft:"3px solid #f5c6c6"}}>
+              <span style={{fontSize:11,color:"#c8a898",width:20,flexShrink:0,fontWeight:600}}>#{i+1}</span>
+              <span style={{fontSize:13,color:"#1e1812",fontWeight:500,flex:1}}>{e.name}</span>
+              <span style={{fontSize:11,color:"#9a8880",flexShrink:0}}>
                 {dayNames[d.getDay()]}, {d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
-                <span style={{background:"rgba(192,57,43,.3)",color:"#e74c3c",fontSize:11,fontWeight:600,padding:"1px 7px",borderRadius:20}}>{days}d</span>
               </span>
+              <span style={{background:"#fff0f0",color:"#d64040",fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:20,flexShrink:0,minWidth:32,textAlign:"center"}}>{days}d</span>
             </div>
           );
         })}

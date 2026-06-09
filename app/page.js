@@ -973,10 +973,9 @@ export default function Home() {
                 const group = sortedActive.filter((t) => (t.priority || "todo") === level.key);
                 const isTarget = drag?.targetLevel === level.key;
                 const isDraggingAny = !!drag;
-                const VISIBLE_LIMIT = level.key === "urgent" ? 3 : group.length;
                 const expanded = !!expandedGroups[level.key];
-                const visibleGroup = expanded ? group : group.slice(0, VISIBLE_LIMIT);
-                const hiddenCount = group.length - VISIBLE_LIMIT;
+                const visibleGroup = group;
+                const hiddenCount = 0;
                 return (
                   <div
                     key={level.key}

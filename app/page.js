@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS, GOALS, HABITS, COUNTDOWNS, EXAMS } from "../lib/content";
-import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask } from "../lib/task-utils.jsx";
+import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask, isRecentlyAdded, isOverdue, isBlocked, deriveCategory, CATEGORY_LABELS } from "../lib/task-utils.jsx";
 
 const PILLARS = [
   {
@@ -132,7 +132,7 @@ function fmt(d) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDownHandle, isDragging, isInsertBefore, rowRef }) {
+function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onMissed, onPointerDownHandle, isDragging, isInsertBefore, rowRef }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
   const isDone = task.status === "done";
@@ -154,7 +154,7 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDow
   }
 
   return (
-    <div ref={rowRef} className={`task ${currentPriority}${isDone ? " is-done" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}${isInsertBefore ? " insert-before" : ""}`}>
+    <div ref={rowRef} className={`task ${currentPriority}${isDone ? " is-done" : ""}${!isDone && isBlocked(task) ? " is-blocked" : ""}${editing ? " is-editing" : ""}${isDragging ? " is-dragging" : ""}${isInsertBefore ? " insert-before" : ""}`}>
       {!isDone && !editing && (
         <div
           className="drag-handle"
@@ -176,6 +176,12 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDow
           <>
             <div className="task-top">
               <span className={`task-text${isDone ? " done" : ""}`}>{linkifyNotes(task.text)}</span>
+              {!isDone && isOverdue(task) && <span className="overdue-badge">⚠ OVERDUE</span>}
+              {!isDone && isBlocked(task) && <span className="blocked-badge" title="Waiting on another step first">⏳ BLOCKED</span>}
+              {!isDone && isRecentlyAdded(task) && (
+                <span className="new-badge" title={`Added ${fmt(task.created_at)}`}>✦ NEW</span>
+              )}
+              {!isDone && <span className={`cat-badge cat-${deriveCategory(task)}`}>{CATEGORY_LABELS[deriveCategory(task)]}</span>}
               {!isDone && task.text.toLowerCase().includes("commerzbank") && task.text.toLowerCase().includes("photot") && (
                 <span className="keystone-badge">🔑 Unblocks most</span>
               )}
@@ -198,10 +204,32 @@ function TaskRow({ task, onToggle, onSetPriority, onDelete, onEdit, onPointerDow
       {!editing && (
         <div className="task-actions">
           <button className="edit" title="Edit" onClick={startEdit}>&#9998;</button>
+          {!isDone && onMissed && (
+            <button className="miss" title="Mark as missed — deadline passed" onClick={() => onMissed(task)}>&#8856;</button>
+          )}
           <button className="del" title="Delete" onClick={() => onDelete(task)}>&#10005;</button>
         </div>
       )}
       {isDone && !editing && <span className="task-meta">{fmt(task.completed_at)}</span>}
+    </div>
+  );
+}
+
+function MissedRow({ task, onRestore, onDelete }) {
+  return (
+    <div className="task missed-row">
+      <div className="missed-mark" title="Deadline passed">✕</div>
+      <div className="task-body">
+        <span className="task-text missed-text">{linkifyNotes(task.text)}</span>
+        <div className="missed-meta-row">
+          {task.due_date && <span className="missed-was-due">was due {fmt(task.due_date)}</span>}
+          <span className="missed-on">missed {fmt(task.completed_at)}</span>
+        </div>
+      </div>
+      <div className="missed-actions">
+        <button className="missed-restore" title="Move back to active" onClick={() => onRestore(task)}>↩ Restore</button>
+        <button className="del" title="Delete" onClick={() => onDelete(task)}>&#10005;</button>
+      </div>
     </div>
   );
 }
@@ -554,9 +582,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [showMissed, setShowMissed] = useState(false);
   const [now, setNow] = useState({ date: "", time: "" });
   const [drag, setDrag] = useState(null);
   const [orderedIds, setOrderedIds] = useState([]);
+  const [catFilter, setCatFilter] = useState("all");
+  const [notifPerm, setNotifPerm] = useState(typeof Notification !== "undefined" ? Notification.permission : "default");
 
   // Refs — always current, safe to read in event handlers
   const dragRef = useRef(null);
@@ -703,6 +734,31 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
+  // Due-date reminders: once per day, notify about overdue + due-today tasks.
+  useEffect(() => {
+    if (loading || notifPerm !== "granted" || typeof Notification === "undefined") return;
+    const todayKey = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem("remindersShown") === todayKey) return;
+
+    const open = tasks.filter((t) => t.status !== "done");
+    const overdue = open.filter(isOverdue);
+    const dueToday = open.filter((t) => {
+      const m = dueBadgeMeta(t.due_date);
+      return m && m.diff === 0;
+    });
+    if (overdue.length === 0 && dueToday.length === 0) return;
+
+    const parts = [];
+    if (overdue.length) parts.push(`${overdue.length} overdue`);
+    if (dueToday.length) parts.push(`${dueToday.length} due today`);
+    const first = (overdue[0] || dueToday[0]).text.split(".")[0];
+    new Notification(`Dashboard: ${parts.join(" · ")}`, {
+      body: first,
+      icon: "/favicon.ico",
+    });
+    localStorage.setItem("remindersShown", todayKey);
+  }, [loading, notifPerm, tasks]);
+
   async function addTask() {
     const text = input.trim();
     if (!text || adding) return;
@@ -759,6 +815,26 @@ export default function Home() {
   }
   setPriorityRef.current = setTaskPriority; // keep ref current for drag handler
 
+  async function markMissed(task) {
+    const update = { status: "missed", completed_at: new Date().toISOString() };
+    setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, ...update } : x)));
+    const { error } = await supabase.from("tasks").update(update).eq("id", task.id);
+    if (error) {
+      console.error("Failed to mark task missed:", error.message);
+      setTasks((t) => t.map((x) => (x.id === task.id ? task : x)));
+    }
+  }
+
+  async function restoreTask(task) {
+    const update = { status: "active", completed_at: null };
+    setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, ...update } : x)));
+    const { error } = await supabase.from("tasks").update(update).eq("id", task.id);
+    if (error) {
+      console.error("Failed to restore task:", error.message);
+      setTasks((t) => t.map((x) => (x.id === task.id ? task : x)));
+    }
+  }
+
   async function deleteTask(task) {
     setTasks((t) => t.filter((x) => x.id !== task.id));
     const { error } = await supabase.from("tasks").delete().eq("id", task.id);
@@ -777,6 +853,12 @@ export default function Home() {
     }
   }
 
+  async function enableReminders() {
+    if (typeof Notification === "undefined") return;
+    const perm = await Notification.requestPermission();
+    setNotifPerm(perm);
+  }
+
   function startDrag(e, task) {
     e.preventDefault();
     const d = { task, x: e.clientX, y: e.clientY, targetLevel: task.priority || "todo", insertBeforeId: null };
@@ -784,11 +866,15 @@ export default function Home() {
     setDrag(d);
   }
 
-  const active = tasks.filter((t) => t.status !== "done");
+  const active = tasks.filter((t) => t.status !== "done" && t.status !== "missed");
   activeRef.current = active; // keep ref current
 
   const done = tasks
     .filter((t) => t.status === "done")
+    .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at));
+
+  const missed = tasks
+    .filter((t) => t.status === "missed")
     .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at));
 
   // Sort active tasks by custom drag order; new tasks fall to the end
@@ -796,6 +882,17 @@ export default function Home() {
   const sortedActive = [...active].sort((a, b) => (orderMap[a.id] ?? 999999) - (orderMap[b.id] ?? 999999));
 
   const focusTasks = sortedActive.filter(isFocusTask).slice(0, 5);
+
+  // Overdue tasks (active, due date in the past) — surfaced at the top
+  const overdueTasks = sortedActive.filter(isOverdue).sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+
+  // Category filter: counts per category + the filtered list used for the groups
+  const catCounts = sortedActive.reduce((acc, t) => {
+    const c = deriveCategory(t);
+    acc[c] = (acc[c] || 0) + 1;
+    return acc;
+  }, {});
+  const filteredActive = catFilter === "all" ? sortedActive : sortedActive.filter((t) => deriveCategory(t) === catFilter);
 
   // Stats calculations
   const todayStr2 = new Date().toISOString().slice(0, 10);
@@ -877,6 +974,11 @@ export default function Home() {
           <span className="stat-label">{streak >= 3 ? "🔥 streak" : "streak"}</span>
         </div>
         <div className="stat-divider" />
+        <div className={`stat-item${missed.length > 0 ? " stat-missed" : ""}`}>
+          <span className="stat-num">{missed.length > 0 ? missed.length : "—"}</span>
+          <span className="stat-label">missed</span>
+        </div>
+        <div className="stat-divider" />
         <div className="stat-item stat-progress">
           <div className="stat-bar-wrap">
             <div className="stat-bar-fill" style={{ width: `${done.length + active.length > 0 ? Math.round(done.length / (done.length + active.length) * 100) : 0}%` }} />
@@ -917,6 +1019,37 @@ export default function Home() {
             <span className="count">{active.length} open</span>
           </div>
           <p className="panel-lead">Each task moves you closer to what you see below.</p>
+
+          {overdueTasks.length > 0 && (
+            <div className="overdue-strip">
+              <div className="overdue-head">
+                <span className="overdue-label">⚠ Overdue · {overdueTasks.length}</span>
+                {notifPerm !== "granted" && (
+                  <button type="button" className="notif-btn" onClick={enableReminders}>🔔 Enable reminders</button>
+                )}
+              </div>
+              <div className="overdue-list">
+                {overdueTasks.map((task) => (
+                  <div key={task.id} className="overdue-item">
+                    <DueBadge dueDate={task.due_date} />
+                    <span className="overdue-text">{task.text.split(".")[0]}</span>
+                    <button
+                      type="button"
+                      className="overdue-miss"
+                      title="Mark as missed — deadline passed"
+                      onClick={() => markMissed(task)}
+                    >Missed</button>
+                    <button
+                      type="button"
+                      className="overdue-done"
+                      title="Mark done"
+                      onClick={() => toggleTask(task)}
+                    >✓ Done</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {focusTasks.length > 0 && (
             <div className="focus-strip">
@@ -959,6 +1092,30 @@ export default function Home() {
             ))}
           </div>
 
+          {!loading && active.length > 0 && (
+            <div className="cat-filter">
+              <button
+                type="button"
+                className={`cat-chip ${catFilter === "all" ? "on" : ""}`}
+                onClick={() => setCatFilter("all")}
+              >
+                All <span className="cat-chip-count">{sortedActive.length}</span>
+              </button>
+              {Object.keys(CATEGORY_LABELS).map((key) =>
+                catCounts[key] ? (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`cat-chip cat-${key} ${catFilter === key ? "on" : ""}`}
+                    onClick={() => setCatFilter(catFilter === key ? "all" : key)}
+                  >
+                    {CATEGORY_LABELS[key]} <span className="cat-chip-count">{catCounts[key]}</span>
+                  </button>
+                ) : null
+              )}
+            </div>
+          )}
+
           <div className="task-list">
             {loading ? (
               <p className="loading">Loading your tasks…</p>
@@ -970,7 +1127,7 @@ export default function Home() {
               </div>
             ) : (
               LEVELS.map((level) => {
-                const group = sortedActive.filter((t) => (t.priority || "todo") === level.key);
+                const group = filteredActive.filter((t) => (t.priority || "todo") === level.key);
                 const isTarget = drag?.targetLevel === level.key;
                 const isDraggingAny = !!drag;
                 const expanded = !!expandedGroups[level.key];
@@ -998,6 +1155,7 @@ export default function Home() {
                         onSetPriority={setTaskPriority}
                         onDelete={deleteTask}
                         onEdit={editTask}
+                        onMissed={markMissed}
                         onPointerDownHandle={startDrag}
                         isDragging={drag?.task.id === task.id}
                         isInsertBefore={drag?.insertBeforeId === task.id}
@@ -1022,6 +1180,28 @@ export default function Home() {
                   </div>
                 );
               })
+            )}
+
+            {missed.length > 0 && (
+              <div className="completed-block missed-block">
+                <button
+                  type="button"
+                  className="completed-toggle missed-toggle"
+                  onClick={() => setShowMissed(!showMissed)}
+                >
+                  ✕ Missed · {missed.length}
+                  <span className="chevron">{showMissed ? "▾" : "▸"}</span>
+                </button>
+                {showMissed &&
+                  missed.map((task) => (
+                    <MissedRow
+                      key={task.id}
+                      task={task}
+                      onRestore={restoreTask}
+                      onDelete={deleteTask}
+                    />
+                  ))}
+              </div>
             )}
 
             {done.length > 0 && (

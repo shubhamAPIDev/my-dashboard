@@ -878,6 +878,12 @@ body {
 .task:hover .task-actions,
 .task:focus-within .task-actions { opacity: 1; }
 
+/* touch devices have no hover — always show the actions so they're tappable */
+@media (hover: none) {
+  .task-actions { opacity: 1; }
+  .miss { color: var(--urgent); }
+}
+
 .del, .flag, .edit {
   background: none;
   border: none;

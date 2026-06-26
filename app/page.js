@@ -583,6 +583,7 @@ export default function Home() {
   const [adding, setAdding] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [showMissed, setShowMissed] = useState(false);
+  const [showRecent, setShowRecent] = useState(true);
   const [now, setNow] = useState({ date: "", time: "" });
   const [drag, setDrag] = useState(null);
   const [orderedIds, setOrderedIds] = useState([]);
@@ -886,6 +887,11 @@ export default function Home() {
   // Overdue tasks (active, due date in the past) — surfaced at the top
   const overdueTasks = sortedActive.filter(isOverdue).sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
+  // Recently added tasks (created within the last 7 days), newest first
+  const recentTasks = active
+    .filter((t) => isRecentlyAdded(t, 7))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
   // Category filter: counts per category + the filtered list used for the groups
   const catCounts = sortedActive.reduce((acc, t) => {
     const c = deriveCategory(t);
@@ -1048,6 +1054,32 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {recentTasks.length > 0 && (
+            <div className="recent-strip">
+              <button
+                type="button"
+                className="recent-head"
+                onClick={() => setShowRecent((v) => !v)}
+              >
+                <span className="recent-label">✦ Recently added · {recentTasks.length}</span>
+                <span className="recent-sub">last 7 days</span>
+                <span className="chevron">{showRecent ? "▾" : "▸"}</span>
+              </button>
+              {showRecent && (
+                <div className="recent-list">
+                  {recentTasks.map((task) => (
+                    <div key={task.id} className="recent-item">
+                      <span className={`recent-dot ${task.priority || "todo"}`} />
+                      <span className="recent-text">{task.text.split(".")[0]}</span>
+                      {task.due_date && <DueBadge dueDate={task.due_date} />}
+                      <span className="recent-when">{fmt(task.created_at)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

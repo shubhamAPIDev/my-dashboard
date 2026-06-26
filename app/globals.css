@@ -2107,3 +2107,75 @@ footer {
   from { opacity: 0.6; }
   to   { opacity: 1; }
 }
+
+/* ── Recently added strip ──────────────────────── */
+.recent-strip {
+  background: var(--brand-soft);
+  border: 1px solid var(--brand-muted);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+.recent-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  text-align: left;
+}
+.recent-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+.recent-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.recent-head .chevron { margin-left: auto; color: var(--brand); }
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 9px;
+}
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #fff;
+  border: 1px solid var(--brand-muted);
+  border-radius: 9px;
+  padding: 7px 11px;
+}
+.recent-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--todo);
+}
+.recent-dot.urgent { background: var(--urgent); }
+.recent-dot.important { background: var(--important); }
+.recent-dot.todo { background: var(--todo); }
+.recent-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}

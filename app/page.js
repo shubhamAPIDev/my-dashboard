@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { PROFILE, MANIFESTATION, QUOTES, VISION, PHOTOS, GOALS, HABITS, COUNTDOWNS, EXAMS } from "../lib/content";
 import { dueBadgeMeta, sortByDue, linkifyNotes, isFocusTask, isRecentlyAdded, isOverdue, isBlocked, deriveCategory, CATEGORY_LABELS } from "../lib/task-utils.jsx";
+import AssistantChat from "./AssistantChat.jsx";
 
 const PILLARS = [
   {
@@ -1285,6 +1286,8 @@ export default function Home() {
           {celebrationMsg}
         </div>
       )}
+
+      <AssistantChat />
 
       {drag && (
         <div

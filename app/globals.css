@@ -2107,3 +2107,161 @@ footer {
   from { opacity: 0.6; }
   to   { opacity: 1; }
 }
+
+/* ============================================================
+   AI Assistant — floating chat
+   ============================================================ */
+.assistant-fab {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--brand);
+  color: #fff;
+  font-size: 22px;
+  box-shadow: 0 6px 20px rgba(30, 24, 18, 0.25);
+  transition: transform 0.15s, background 0.15s;
+}
+.assistant-fab:hover { transform: scale(1.06); background: var(--brand-dark); }
+.assistant-fab.is-open { background: var(--ink); }
+
+.assistant-panel {
+  position: fixed;
+  bottom: 88px;
+  right: 22px;
+  z-index: 1000;
+  width: min(380px, calc(100vw - 32px));
+  height: min(560px, calc(100vh - 130px));
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(30, 24, 18, 0.22);
+  overflow: hidden;
+  animation: assistant-in 0.16s ease-out;
+}
+@keyframes assistant-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.assistant-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+.assistant-head-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-serif, serif);
+  font-size: 16px; font-weight: 500; color: var(--ink);
+}
+.assistant-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--todo, #3a8a58);
+  box-shadow: 0 0 0 3px rgba(58, 138, 88, 0.18);
+}
+.assistant-head-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.assistant-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.assistant-empty { margin: auto 0; text-align: center; padding: 12px 4px; }
+.assistant-empty-title { font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+.assistant-empty-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; }
+.assistant-suggestions { display: flex; flex-direction: column; gap: 8px; }
+.assistant-suggestion {
+  font-size: 13px; padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  background: var(--paper); color: var(--ink-2, var(--ink));
+  border: 1px solid var(--line); text-align: left; transition: border-color 0.12s;
+}
+.assistant-suggestion:hover { border-color: var(--brand-light, var(--brand)); }
+
+.assistant-msg {
+  max-width: 85%;
+  padding: 9px 13px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.assistant-msg p { margin: 0; }
+.assistant-msg p + p { margin-top: 6px; }
+.assistant-msg.user {
+  align-self: flex-end;
+  background: var(--brand);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.assistant-msg.assistant {
+  align-self: flex-start;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 4px;
+}
+
+.assistant-msg.typing { display: flex; gap: 4px; align-items: center; }
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink-soft);
+  animation: typing-bounce 1s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.assistant-composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+.assistant-composer textarea {
+  flex: 1;
+  resize: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--ink);
+  max-height: 110px;
+  background: var(--paper);
+}
+.assistant-composer textarea:focus { outline: none; border-color: var(--brand); }
+.assistant-composer button {
+  border: none;
+  border-radius: 10px;
+  padding: 0 16px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.assistant-composer button:disabled { opacity: 0.5; cursor: default; }
+.assistant-composer button:not(:disabled):hover { background: var(--brand-dark); }

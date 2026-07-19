@@ -1,0 +1,43 @@
+name: Daily task backup + keep-alive
+
+# Runs every day. Reading the tasks table keeps the free-tier Supabase
+# project active (so it never auto-pauses), and commits a fresh backup
+# of all tasks to backups/tasks-latest.json.
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # 06:17 UTC daily
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci || npm install
+
+      - name: Back up tasks (also pings the DB)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/backup-tasks.mjs
+
+      - name: Commit backup if it changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain backups/tasks-latest.json)" ]]; then
+            git add backups/tasks-latest.json
+            git commit -m "chore: daily task backup [skip ci]"
+            git push
+          else
+            echo "No changes in backup — nothing to commit."
+          fi

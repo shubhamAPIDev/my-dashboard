@@ -1,16 +1,16 @@
 {
-  "exported_at": "2026-07-30T09:04:57.515Z",
-  "count": 71,
+  "exported_at": "2026-07-31T09:18:26.759Z",
+  "count": 76,
   "tasks": [
     {
-      "id": "c9a95bb6-b32f-427c-94ce-c822192f8baa",
-      "text": "Build a personal website to track tasks and life",
-      "status": "done",
+      "id": "a51d546e-63ec-4f6a-ac80-422379ad0e4c",
+      "text": "Attend ENTER_ZUKUNFT_WIWI job fair — Thu 11 June 2026, Hörsaalzentrum, Campus Westend.",
+      "status": "missed",
       "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": "2026-06-06T15:36:55.67+00:00",
+      "completed_at": "2026-06-22T14:59:08.544+00:00",
       "priority": "important",
       "notes": null,
-      "due_date": null,
+      "due_date": "2026-06-11",
       "category": null,
       "step_order": null
     },
@@ -171,18 +171,6 @@
       "step_order": null
     },
     {
-      "id": "9cf119c8-67cf-4c1b-94d1-5ebb6e41e5bd",
-      "text": "Dance Night Hawaii (Standard & Latein) — 17 July 2026, RSVP if attending. hoffmann@hochschulsport.uni-frankfurt.de",
-      "status": "active",
-      "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": null,
-      "priority": "todo",
-      "notes": null,
-      "due_date": "2026-07-17",
-      "category": null,
-      "step_order": null
-    },
-    {
       "id": "d1b2acb0-7d9c-4961-9b4f-11e06efffb9f",
       "text": "Decide on LAUNCH Build Days hackathon (showed interest in January). applications@launch-rm.de",
       "status": "active",
@@ -195,14 +183,14 @@
       "step_order": null
     },
     {
-      "id": "d75e2572-40d3-48c7-99a3-84b261260d51",
-      "text": "Pay Goethe semester fee €408.28 by 31 July 2026 (Rückmeldung WiSe 2026/27). IBAN DE18 5005 0000 0001 006535, BIC HELADEF1, ref = Matrikelnummer. Late fee €30 after 31 Jul; auto de-registration if missed.",
-      "status": "active",
+      "id": "c9a95bb6-b32f-427c-94ce-c822192f8baa",
+      "text": "Build a personal website to track tasks and life",
+      "status": "done",
       "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": null,
-      "priority": "urgent",
+      "completed_at": "2026-06-06T15:36:55.67+00:00",
+      "priority": "important",
       "notes": null,
-      "due_date": "2026-07-31",
+      "due_date": null,
       "category": null,
       "step_order": null
     },
@@ -435,18 +423,6 @@
       "step_order": null
     },
     {
-      "id": "e6b7481c-fdaf-463c-864d-a20789276948",
-      "text": "Find accommodation in Frankfurt city — Keep Searching.",
-      "status": "active",
-      "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": null,
-      "priority": "urgent",
-      "notes": null,
-      "due_date": "2026-07-01",
-      "category": null,
-      "step_order": null
-    },
-    {
       "id": "203a540a-719b-482c-ba5a-d99dfdecabbc",
       "text": "Pass the exams of first semester — study Economics, all subjects, daily.",
       "status": "active",
@@ -464,6 +440,54 @@
       "status": "active",
       "created_at": "2026-06-06T15:36:56.02263+00:00",
       "completed_at": null,
+      "priority": "important",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "9cf119c8-67cf-4c1b-94d1-5ebb6e41e5bd",
+      "text": "Dance Night Hawaii (Standard & Latein) — 17 July 2026, RSVP if attending. hoffmann@hochschulsport.uni-frankfurt.de",
+      "status": "missed",
+      "created_at": "2026-06-06T15:36:56.02263+00:00",
+      "completed_at": "2026-07-31T01:38:24.833+00:00",
+      "priority": "todo",
+      "notes": null,
+      "due_date": "2026-07-17",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "e6b7481c-fdaf-463c-864d-a20789276948",
+      "text": "Find accommodation in Frankfurt city — Keep Searching.",
+      "status": "missed",
+      "created_at": "2026-06-06T15:36:56.02263+00:00",
+      "completed_at": "2026-07-31T01:38:26.666+00:00",
+      "priority": "urgent",
+      "notes": null,
+      "due_date": "2026-07-01",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "d75e2572-40d3-48c7-99a3-84b261260d51",
+      "text": "Pay Goethe semester fee €408.28 by 31 July 2026 (Rückmeldung WiSe 2026/27). IBAN DE18 5005 0000 0001 006535, BIC HELADEF1, ref = Matrikelnummer. Late fee €30 after 31 Jul; auto de-registration if missed.",
+      "status": "active",
+      "created_at": "2026-06-06T15:36:56.02263+00:00",
+      "completed_at": null,
+      "priority": "urgent",
+      "notes": null,
+      "due_date": "2026-07-31",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "d3378990-8c35-4f21-8b31-c5f233be69d6",
+      "text": "Reply to Prof. Jattana about the HiWi contract extension (he said discuss week of 8 June). jattana@em.uni-frankfurt.de",
+      "status": "done",
+      "created_at": "2026-06-06T15:36:56.02263+00:00",
+      "completed_at": "2026-07-02T10:25:26.244+00:00",
       "priority": "important",
       "notes": null,
       "due_date": null,
@@ -503,30 +527,6 @@
       "priority": "todo",
       "notes": null,
       "due_date": "2026-06-30",
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "a51d546e-63ec-4f6a-ac80-422379ad0e4c",
-      "text": "Attend ENTER_ZUKUNFT_WIWI job fair — Thu 11 June 2026, Hörsaalzentrum, Campus Westend.",
-      "status": "missed",
-      "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": "2026-06-22T14:59:08.544+00:00",
-      "priority": "important",
-      "notes": null,
-      "due_date": "2026-06-11",
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "d3378990-8c35-4f21-8b31-c5f233be69d6",
-      "text": "Reply to Prof. Jattana about the HiWi contract extension (he said discuss week of 8 June). jattana@em.uni-frankfurt.de",
-      "status": "done",
-      "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": "2026-07-02T10:25:26.244+00:00",
-      "priority": "important",
-      "notes": null,
-      "due_date": null,
       "category": null,
       "step_order": null
     },
@@ -627,18 +627,6 @@
       "step_order": null
     },
     {
-      "id": "ad7e1002-3a79-4c3c-a21c-28e0b6f88961",
-      "text": "MIEEP / SAFE panel discussion 'Auf dem Weg zur Klimaneutralität – Die Rolle des Finanzsektors' (German). Fri 19 June, 11:00–12:30. Register on the SAFE Frankfurt events site. ieep@wiwi.uni-frankfurt.de",
-      "status": "missed",
-      "created_at": "2026-06-18T14:09:48.419963+00:00",
-      "completed_at": "2026-07-07T19:08:46.817+00:00",
-      "priority": "todo",
-      "notes": null,
-      "due_date": "2026-06-19",
-      "category": null,
-      "step_order": null
-    },
-    {
       "id": "5b9686da-a029-4831-aaef-2f69ca4ed429",
       "text": "Register on the SWFFM student-dorm waiting list — swffm.de/wohnen/wohnheime. Recommended by Sale (ieep) as the first step for Frankfurt housing; waiting list is long, so start now.",
       "status": "active",
@@ -663,6 +651,18 @@
       "step_order": null
     },
     {
+      "id": "cf0787c4-6fac-4952-9207-41371f4ee800",
+      "text": "Mountain Sports Excursion (Hochschulsport) — Kleinwalsertal, Sun 20–Fri 25 Sep 2026 (hikes: Schwarzwasserhütte, Ifen, Breitachklamm). Registration deadline 14 June already passed — email to ask if a late spot is available. info@hochschulsport.uni-frankfurt.de",
+      "status": "missed",
+      "created_at": "2026-06-18T14:09:48.419963+00:00",
+      "completed_at": "2026-07-02T11:38:14.361+00:00",
+      "priority": "todo",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
       "id": "3a6334d8-eeaa-46d3-a883-7a468a4a7833",
       "text": "Café Sprachwelten — language games café. Thu 18 June, 17:00–19:00, Room 14, ISZ Container (Campus Westend, Building 17). No registration; drop in. 3 sessions of ≥45 min → certificate of participation.",
       "status": "missed",
@@ -675,14 +675,14 @@
       "step_order": null
     },
     {
-      "id": "cf0787c4-6fac-4952-9207-41371f4ee800",
-      "text": "Mountain Sports Excursion (Hochschulsport) — Kleinwalsertal, Sun 20–Fri 25 Sep 2026 (hikes: Schwarzwasserhütte, Ifen, Breitachklamm). Registration deadline 14 June already passed — email to ask if a late spot is available. info@hochschulsport.uni-frankfurt.de",
+      "id": "ad7e1002-3a79-4c3c-a21c-28e0b6f88961",
+      "text": "MIEEP / SAFE panel discussion 'Auf dem Weg zur Klimaneutralität – Die Rolle des Finanzsektors' (German). Fri 19 June, 11:00–12:30. Register on the SAFE Frankfurt events site. ieep@wiwi.uni-frankfurt.de",
       "status": "missed",
       "created_at": "2026-06-18T14:09:48.419963+00:00",
-      "completed_at": "2026-07-02T11:38:14.361+00:00",
+      "completed_at": "2026-07-07T19:08:46.817+00:00",
       "priority": "todo",
       "notes": null,
-      "due_date": null,
+      "due_date": "2026-06-19",
       "category": null,
       "step_order": null
     },
@@ -759,24 +759,24 @@
       "step_order": null
     },
     {
-      "id": "c6201d2a-ea64-4a0b-9102-7fa364cde0a5",
-      "text": "Inform Erasmus School of Economics Rotterdam that you are withdrawing from the autumn 2026 ERASMUS exchange, and CC Ms Voigtländer (voigtlaender@wiwi.uni-frankfurt.de) — she asked you to do this on 8 June.",
-      "status": "done",
-      "created_at": "2026-06-26T23:23:54.63347+00:00",
-      "completed_at": "2026-07-02T10:25:59.494+00:00",
-      "priority": "important",
-      "notes": null,
-      "due_date": null,
-      "category": null,
-      "step_order": null
-    },
-    {
       "id": "cfc58b26-fe5e-4dad-a50b-7f1bc30811e6",
       "text": "Follow up on safe-housing support: reply to Aidshilfe Frankfurt (oliver.koenig@ah-frankfurt.de / roxana.kolb@ah-frankfurt.de) and AmkA, keep the Queer-Referat thread going (queerreferatfrankfurt@posteo.de), and contact the Goethe University Antidiskriminierungsstelle that AmkA recommended (uni-frankfurt.de/88047870/Antidiskriminierung).",
       "status": "done",
       "created_at": "2026-06-26T23:23:54.63347+00:00",
       "completed_at": "2026-07-10T23:11:22.514+00:00",
       "priority": "urgent",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "c6201d2a-ea64-4a0b-9102-7fa364cde0a5",
+      "text": "Inform Erasmus School of Economics Rotterdam that you are withdrawing from the autumn 2026 ERASMUS exchange, and CC Ms Voigtländer (voigtlaender@wiwi.uni-frankfurt.de) — she asked you to do this on 8 June.",
+      "status": "done",
+      "created_at": "2026-06-26T23:23:54.63347+00:00",
+      "completed_at": "2026-07-02T10:25:59.494+00:00",
+      "priority": "important",
       "notes": null,
       "due_date": null,
       "category": null,
@@ -847,6 +847,66 @@
       "text": "Reach out to the recommended contact (Prof. Jatana / Lucas) once confirmed.",
       "status": "active",
       "created_at": "2026-07-02T10:47:52.960628+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "eb4bb154-271b-401c-8301-a08b8462848e",
+      "text": "complete buddy certificate",
+      "status": "active",
+      "created_at": "2026-07-31T01:36:36.546498+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "e8a811a1-4682-49a6-b3a6-27b6df588152",
+      "text": "edit document for anmeldung and apply for frankfurt city registration",
+      "status": "active",
+      "created_at": "2026-07-31T01:37:14.59561+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "ba808080-f3fd-429b-80c3-42a9b293a138",
+      "text": "apply for residence permit in frankfurt",
+      "status": "active",
+      "created_at": "2026-07-31T01:37:49.51135+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "55576dea-1423-4c93-8f99-0dbaae30c605",
+      "text": "Arrange K2 Insurance document for resident permit application process",
+      "status": "active",
+      "created_at": "2026-07-31T01:38:18.160756+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "bdee395f-35ae-44c7-8191-fe05f47c3205",
+      "text": "drop a mail to change bank account details for hiwi from commerzbank to expatrio bank account",
+      "status": "active",
+      "created_at": "2026-07-31T01:39:00.990666+00:00",
       "completed_at": null,
       "priority": "todo",
       "notes": null,

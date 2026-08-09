@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-08-08T07:17:06.388Z",
+  "exported_at": "2026-08-09T07:18:31.282Z",
   "count": 89,
   "tasks": [
     {
@@ -363,12 +363,12 @@
       "step_order": null
     },
     {
-      "id": "46275f58-96ef-4721-9b7c-00d22561e7bc",
-      "text": "Apply for 3-year residence permit at Frankfurt Ausländerbehörde.",
-      "status": "active",
+      "id": "b5790f32-5cc4-43a9-9a46-71611ccf5eba",
+      "text": "[Once you sign a lease] Register at Frankfurt Bürgeramt (Anmeldung) within 14 days of moving in.",
+      "status": "done",
       "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": null,
-      "priority": "urgent",
+      "completed_at": "2026-08-08T19:26:16.565+00:00",
+      "priority": "important",
       "notes": null,
       "due_date": null,
       "category": null,
@@ -411,14 +411,14 @@
       "step_order": null
     },
     {
-      "id": "e6b7481c-fdaf-463c-864d-a20789276948",
-      "text": "Find accommodation in Frankfurt city — Keep Searching.",
-      "status": "missed",
+      "id": "46275f58-96ef-4721-9b7c-00d22561e7bc",
+      "text": "Apply for 3-year residence permit at Frankfurt Ausländerbehörde.",
+      "status": "done",
       "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": "2026-07-31T01:38:26.666+00:00",
+      "completed_at": "2026-08-08T19:26:06.215+00:00",
       "priority": "urgent",
       "notes": null,
-      "due_date": "2026-07-01",
+      "due_date": null,
       "category": null,
       "step_order": null
     },
@@ -471,18 +471,6 @@
       "step_order": null
     },
     {
-      "id": "b5790f32-5cc4-43a9-9a46-71611ccf5eba",
-      "text": "[Once you sign a lease] Register at Frankfurt Bürgeramt (Anmeldung) within 14 days of moving in.",
-      "status": "active",
-      "created_at": "2026-06-06T15:36:56.02263+00:00",
-      "completed_at": null,
-      "priority": "important",
-      "notes": null,
-      "due_date": null,
-      "category": null,
-      "step_order": null
-    },
-    {
       "id": "ba4c5e75-e364-4174-8cae-aa6466453a3e",
       "text": "Confirm Jam Session participation and send performance details to Faustino. Event: Tue 1 July 2026, 18:00–22:00. faustino@hochschulsport.uni-frankfurt.de",
       "status": "missed",
@@ -527,6 +515,18 @@
       "priority": "todo",
       "notes": null,
       "due_date": "2026-07-17",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "e6b7481c-fdaf-463c-864d-a20789276948",
+      "text": "Find accommodation in Frankfurt city — Keep Searching.",
+      "status": "missed",
+      "created_at": "2026-06-06T15:36:56.02263+00:00",
+      "completed_at": "2026-07-31T01:38:26.666+00:00",
+      "priority": "urgent",
+      "notes": null,
+      "due_date": "2026-07-01",
       "category": null,
       "step_order": null
     },
@@ -915,62 +915,14 @@
       "step_order": null
     },
     {
-      "id": "3e453784-c0e6-4df3-ab0d-eb4ce986a4a6",
-      "text": "Check TH Ingolstadt application portal for document-upload / progress changes (emails from bewerbung@thi.de on 21 & 27 Jul 2026) and upload anything still missing.",
-      "status": "active",
-      "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
-      "priority": "important",
-      "notes": null,
-      "due_date": null,
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "b3e764f0-4d72-455c-8bd7-9da63f16556d",
-      "text": "Apply for Goethe Buddy Program WiSe 2026/27 by 30 Sep 2026 — uni-frankfurt.de (International Studies Buddy Programme). Register for only ONE buddy programme (WiWi has a separate one). Optional info event Tue 4 Aug 15:00–16:00 via OLAT. buddy@uni-frankfurt.de",
+      "id": "f78e7aa1-eff1-46cf-86aa-ed68db53fd41",
+      "text": "RSVP / attend Futury Alumni Summit & Summer Party — Thu 10 Sep 2026, Futury GmbH Frankfurt. Also cast vote for Europe's Leading Start-Up Hub 2027 if you want. charlie@futury.eu",
       "status": "active",
       "created_at": "2026-08-02T19:01:27.790192+00:00",
       "completed_at": null,
       "priority": "todo",
       "notes": null,
-      "due_date": "2026-09-30",
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "fce71cd3-819c-4ab1-9645-0bff9e7595d1",
-      "text": "Attend The Circle – Upcycling Workshop — Sat 22 Aug 2026, 16:00–18:30, Goethe-Institut Frankfurt (Bleichstraße 1). Bring an old T-shirt. Tickets already booked on Eventbrite (#15398699203).",
-      "status": "active",
-      "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
-      "priority": "todo",
-      "notes": null,
-      "due_date": "2026-08-22",
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "fe1a7acd-166d-4998-b935-2f4002395ce0",
-      "text": "Attend Open Campus SAE Frankfurt — Sat 22 Aug 2026 (tickets already booked on Eventbrite). Contact SAE by email/phone if you need details before the visit.",
-      "status": "active",
-      "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
-      "priority": "todo",
-      "notes": null,
-      "due_date": "2026-08-22",
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "e23ef0f3-3a40-4972-9ca5-ae9383a0c50e",
-      "text": "Pay €200 cash deposit for TH Aschaffenburg Summer German Intensive Course — Mon 3 Aug 2026 at 13:00 in Building 41, Room E06 (mandatory Registration & Welcome Session same time/place). Deposit returned after you pay the full €399 online. Campus map: th-ab.de. Sprachenzentrum@th-ab.de / renate.link@th-ab.de",
-      "status": "active",
-      "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
-      "priority": "urgent",
-      "notes": null,
-      "due_date": "2026-08-03",
+      "due_date": "2026-09-10",
       "category": null,
       "step_order": null
     },
@@ -1011,23 +963,35 @@
       "step_order": null
     },
     {
-      "id": "f78e7aa1-eff1-46cf-86aa-ed68db53fd41",
-      "text": "RSVP / attend Futury Alumni Summit & Summer Party — Thu 10 Sep 2026, Futury GmbH Frankfurt. Also cast vote for Europe's Leading Start-Up Hub 2027 if you want. charlie@futury.eu",
+      "id": "fce71cd3-819c-4ab1-9645-0bff9e7595d1",
+      "text": "Attend The Circle – Upcycling Workshop — Sat 22 Aug 2026, 16:00–18:30, Goethe-Institut Frankfurt (Bleichstraße 1). Bring an old T-shirt. Tickets already booked on Eventbrite (#15398699203).",
       "status": "active",
       "created_at": "2026-08-02T19:01:27.790192+00:00",
       "completed_at": null,
       "priority": "todo",
       "notes": null,
-      "due_date": "2026-09-10",
+      "due_date": "2026-08-22",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "e23ef0f3-3a40-4972-9ca5-ae9383a0c50e",
+      "text": "Pay €200 cash deposit for TH Aschaffenburg Summer German Intensive Course — Mon 3 Aug 2026 at 13:00 in Building 41, Room E06 (mandatory Registration & Welcome Session same time/place). Deposit returned after you pay the full €399 online. Campus map: th-ab.de. Sprachenzentrum@th-ab.de / renate.link@th-ab.de",
+      "status": "missed",
+      "created_at": "2026-08-02T19:01:27.790192+00:00",
+      "completed_at": "2026-08-08T19:25:30.401+00:00",
+      "priority": "urgent",
+      "notes": null,
+      "due_date": "2026-08-03",
       "category": null,
       "step_order": null
     },
     {
       "id": "81cec891-7459-435f-aca1-da65fbb3ea55",
       "text": "Email proof of Goethe matriculation + your postal address to language-service@th-ab.de ASAP to get the €50 student discount on the Aschaffenburg German Intensive Course (€399 → €349).",
-      "status": "active",
+      "status": "missed",
       "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
+      "completed_at": "2026-08-08T19:25:35.142+00:00",
       "priority": "urgent",
       "notes": null,
       "due_date": "2026-08-03",
@@ -1037,12 +1001,60 @@
     {
       "id": "64238db1-6029-4e1d-b3f9-2e1451e4ed64",
       "text": "Buy textbook \"Schritte plus Neu 1\" Kursbuch und Arbeitsbuch (ISBN 978-3-19-501081-8) before Mon 3 Aug morning — digital online, or print at FachBuch im FachWerk, Roßmarkt 42, 63739 Aschaffenburg.",
-      "status": "active",
+      "status": "done",
       "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
+      "completed_at": "2026-08-08T19:25:37.983+00:00",
       "priority": "urgent",
       "notes": null,
       "due_date": "2026-08-03",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "faf9da69-a87a-421f-b6a0-97e162c2dff1",
+      "text": "Pay the full TH Aschaffenburg German Intensive Course fee online (€399, or €349 with student discount) after the €200 cash deposit — deposit is refunded once the online payment is received. language-service@th-ab.de",
+      "status": "missed",
+      "created_at": "2026-08-02T19:01:27.790192+00:00",
+      "completed_at": "2026-08-08T19:26:53.481+00:00",
+      "priority": "important",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "b3e764f0-4d72-455c-8bd7-9da63f16556d",
+      "text": "Apply for Goethe Buddy Program WiSe 2026/27 by 30 Sep 2026 — uni-frankfurt.de (International Studies Buddy Programme). Register for only ONE buddy programme (WiWi has a separate one). Optional info event Tue 4 Aug 15:00–16:00 via OLAT. buddy@uni-frankfurt.de",
+      "status": "active",
+      "created_at": "2026-08-02T19:01:27.790192+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": "2026-09-30",
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "3e453784-c0e6-4df3-ab0d-eb4ce986a4a6",
+      "text": "Check TH Ingolstadt application portal for document-upload / progress changes (emails from bewerbung@thi.de on 21 & 27 Jul 2026) and upload anything still missing.",
+      "status": "active",
+      "created_at": "2026-08-02T19:01:27.790192+00:00",
+      "completed_at": null,
+      "priority": "important",
+      "notes": null,
+      "due_date": null,
+      "category": null,
+      "step_order": null
+    },
+    {
+      "id": "fe1a7acd-166d-4998-b935-2f4002395ce0",
+      "text": "Attend Open Campus SAE Frankfurt — Sat 22 Aug 2026 (tickets already booked on Eventbrite). Contact SAE by email/phone if you need details before the visit.",
+      "status": "active",
+      "created_at": "2026-08-02T19:01:27.790192+00:00",
+      "completed_at": null,
+      "priority": "todo",
+      "notes": null,
+      "due_date": "2026-08-22",
       "category": null,
       "step_order": null
     },
@@ -1055,18 +1067,6 @@
       "priority": "important",
       "notes": null,
       "due_date": "2026-08-18",
-      "category": null,
-      "step_order": null
-    },
-    {
-      "id": "faf9da69-a87a-421f-b6a0-97e162c2dff1",
-      "text": "Pay the full TH Aschaffenburg German Intensive Course fee online (€399, or €349 with student discount) after the €200 cash deposit — deposit is refunded once the online payment is received. language-service@th-ab.de",
-      "status": "active",
-      "created_at": "2026-08-02T19:01:27.790192+00:00",
-      "completed_at": null,
-      "priority": "important",
-      "notes": null,
-      "due_date": null,
       "category": null,
       "step_order": null
     }
